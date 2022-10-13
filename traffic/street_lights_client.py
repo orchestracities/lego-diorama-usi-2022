@@ -94,7 +94,7 @@ def on_message(client, userdata, msg):
                 print("turning off lights on street 1 ...")
                 if (set_lights("off", sl1)):
                     ##prep ack object
-                    payload['light']['switch'] = "ok off"
+                    payload['light']['switch'] = "ok"
                     ##send ack with json
                     client.publish(ack_topic(str(msg.topic)), json.dumps(payload))
                     ##TODO error Handling
@@ -113,7 +113,7 @@ def on_message(client, userdata, msg):
                     print("turning off lights on street 2 ...")
                     if (set_lights("off", sl2)):
                         ##prep ack object
-                        payload['light']['switch'] = "ok off"
+                        payload['light']['switch'] = "ok"
                         ##send ack with json
                         client.publish(ack_topic(str(msg.topic)), json.dumps(payload))
                         ##TODO error Handling
