@@ -10,70 +10,84 @@ Official tutorial: https://www.thethingsindustries.com/docs/gateways/thethingski
 
 ```
 GatewayID:
-ttn-martel-innovate-001@ttn
+martel-ttn-01
 
 Account Server:
 https://eu1.cloud.thethings.network/
 
 Gateway Key:
-NNSXS.V2QQSQL73SK5CRMVTPHS24PMIPMXOC6ZIKZS7DY.H7SFIQH2FNHITEJBELFZKKNVPZQRIF5Z22N7LE4GWAA5WX3IZJ2Q
+NNSXS.NACIYY37UADMZG6O6XD7HRH6OM6XDHEKEIUU4CI.VSZHH6U77GJZHBQB2LNO6RQN3RFONSVYEUKI3OBZXPJGCU5EB4KQC0MM3NT01T4L1ANO
 ```
+- Ricordare di rimuovere la parte di sicurezza. 
 
 After configuration wait until 4 out of 5 blue leds turn on.
 
-Led meaning documentation:
-https://www.thethingsnetwork.org/docs/gateways/gateway/ledstatus/
-
 The TTN Gateway is now ready to use.
 
+## Led meaning documentation:
+https://www.thethingsnetwork.org/docs/gateways/gateway/ledstatus/
 
-# The Things One Configuration
+# Seeeduino LoRaWAN Configuration
 
-## Device Info (TTU#002)
+## Device Info (seed-martel-001)
 ```
-EUI: 0004A30B001F9A4B
-Battery: 3294
-AppEUI: 70B3D57ED00181B5
-DevEUI: 0004A30B001F9A4B
-Data Rate: 0
-RX Delay 1: 1000
-RX Delay 2: 2000
+AppEUI: 8CF957200005727C
+DevEUI: 70B3D57ED00561EC
+AppKey: 51F58CAC3F5735E3D1F88DD3EADBE9C6
 ```
 
-## Device Info (TTU#004)
+## Device Info (seed-martel-002)
 ```
-EUI: 0004A30B0020085D
-Battery: 3294
-AppEUI: 0000000000000000
-DevEUI: 0004A30B0020085D
-Data Rate: 0
-RX Delay 1: 1000
-RX Delay 2: 2000
+AppEUI: 8CF95720000569A6
+DevEUI: 70B3D57ED00561F1
+AppKey: 9C14C735E02914422112AC32D7C0EC27
 ```
 
-TTO Activation Process:
-https://www.thethingsindustries.com/docs/devices/the-things-uno/
+# Connection between Seeeduino LoRaWAN and TTN
 
-# Known issues:
-- The gateway randomly disconnects from wifi
-- The gateway randomly reboots
-- TTU#0004 AppEUI is 0000000000000000
-- TTU#0002 gives this while trying connecting
+At the moment there are 2 Seeeduino LoRaWAN connected to our account on The Things Network.
+
+- To add another Seeeduino you need to add a new End Device under the "oc-diorama-001" application that can be found in our TTN account.
+
+- If there is no application, it must be created.
+
+- Click on Add End Devide, choose the manual insertion method.
+
+- The Frequency Plan must be Europe 863-870MHz (SF9)
+
+- LoRaWAN version 1.0.3
+
+- The JoinEUI value can be found on the chip present on the Seeeduino LoRaWAN.
+
+- DevEui and AppKey must be generated and finally an ID must be chosen.
+
+After this configuration the TTN will be ready to receive messages from our boards.
+
+# Send data to TTN
+https://wiki.seeedstudio.com/Seeeduino_LoRAWAN/
+
+To send data to TTN we use has base the OTAA script provided by SeedStudio, you can find the code snipped in the link above.
+
+That code need to be a little corrected:
 
 ```
-Sending: mac set ch status 5 on
-Sending: mac set ch freq 6 867700000
-Sending: mac set ch drrange 6 0 5
-Sending: mac set ch dcycle 6 499
-Sending: mac set ch status 6 on
-Sending: mac set ch freq 7 867900000
-Sending: mac set ch drrange 7 0 5
-Sending: mac set ch dcycle 7 499
-Sending: mac set ch status 7 on
-Sending: mac set pwridx 1
-Sending: mac set retx 7
-Sending: mac set dr 5
-Sending: mac join otaa 
-Join not accepted: denied
-Check your coverage, keys and backend status.
+lora.setKey("2B7E151628AED2A6ABF7158809CF4F3C", "2B7E151628AED2A6ABF7158809CF4F3C"
+"2B7E151628AED2A6ABF7158809CF4F3C");
 ```
+
+The line above has to be removed and sobstitute with this one:
+```
+//void setId(char *DevAddr, char *DevEUI, char *AppEUI);
+lora.setId(NULL, "12409E2345695432", "70B3D57EF0006593");
+// setKey(char *NwkSKey, char *AppSKey, char *AppKey);
+lora.setKey(NULL, NULL, "47BDA77B6D7B4DDA7DC182E54295FE4E");
+```
+Note: Data in the functions are just fo example.
+
+It's needed to configure those value with the one of the Seeeduino the user is intended to send messages with.
+
+All details are in the link down here:
+
+https://blog.squix.org/2017/07/seeeduino-lora-gps-getting-started-with-lorawan-and-ttn.html
+
+Compiling the OTAA sketch should make the Seeeduino connect to the Gateway and send messages to the TTN.
