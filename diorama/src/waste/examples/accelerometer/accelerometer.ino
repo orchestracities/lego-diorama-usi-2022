@@ -1,5 +1,5 @@
 /*****************************************************************************/
-//	Function:    Get the accelemeter of the x/y/z axis.
+//	Function:    Get the accelerometer of the x/y/z axis.
 //  Hardware:    Grove - 3-Axis Digital Accelerometer(±1.5g)
 //	Arduino IDE: Arduino-1.0
 //	Author:	 Frankie.Chu
@@ -25,9 +25,9 @@
 
 #include <Wire.h>
 #include "MMA7660.h"
-MMA7660 accelemeter;
+MMA7660 accelerometer;
 void setup() {
-    accelemeter.init();
+    accelerometer.init();
     Serial.begin(9600);
 }
 void loop() {
@@ -35,7 +35,7 @@ void loop() {
     int8_t y;
     int8_t z;
     float ax, ay, az;
-    accelemeter.getXYZ(&x, &y, &z);
+    accelerometer.getXYZ(&x, &y, &z);
 
     Serial.println("I'm not dead");
 
@@ -46,7 +46,7 @@ void loop() {
     Serial.print("z = ");
     Serial.println(z);
 
-    accelemeter.getAcceleration(&ax, &ay, &az);
+    accelerometer.getAcceleration(&ax, &ay, &az);
     Serial.println("accleration of X/Y/Z: ");
     Serial.print(ax);
     Serial.println(" g");
