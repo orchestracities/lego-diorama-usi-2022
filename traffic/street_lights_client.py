@@ -13,11 +13,19 @@ config.read(file)
 
 ##############Functions
 ##topic constructor
-def topic_constructor(protocol, service_api_key, sensor_id, attr):
-   return ("/" + protocol + "/" + service_api_key + "/" + sensor_id + "/" + attr)
+def topic_constructor(protocol, service_api_key, sensor_id):
+   return ("/" + protocol + "/" + service_api_key + "/" + sensor_id)
 
-def ack_topic(topic):
-    return (topic + "exe")
+def attr_topic(topic):
+    return (cmd_topic + "/attr")
+
+def cmd_topic(topic):
+    return (topic + "/cmd")
+
+def ack_topic(cmd_topic):
+    return (cmd_topic + "exe")
+
+
 
 #config connection
 broker_address=str(config['connection']['broker_address'])
@@ -34,17 +42,18 @@ cmd="cmd"
 ## Use digital pins for led from 2 to 8
 sl1 = [2,3]
 sl1_id = "sl1"
-sl1_topic = topic_constructor(protocol, service_api_key, sl1_id, cmd)
+sl1_topic = topic_constructor(protocol, service_api_key, sl1_id)
 
 ##streetlight 2 def considered 1 port for 2 led to be changed if 4 led fit in one port
 ## Use digital pins for led from 2 to 8
-sl2 = [2,3]
+sl2 = [4,5]
 sl2_id = "sl2"
-sl2_topic = topic_constructor(protocol, service_api_key, sl1_id, cmd)
+sl2_topic = topic_constructor(protocol, service_api_key, sl2_id)
 
 ###debug
-print(sl2)
-print(sl1)
+print(sl1_topic)
+print(sl2_topic)
+print(cmd_topic(sl1_topic))
 
 ##returns true if operation successfull
 def set_lights(setter, pins):
@@ -64,6 +73,35 @@ def set_lights(setter, pins):
         print("setter invalid")
         return False
 
+##send light ack
+def light_cmd_ack(client, msg, payload, status):
+     ##prep ack object
+                    payload['light']['switch'] = status
+                    ##send ack with json
+                    client.publish(ack_topic(str(msg.topic)), json.dumps(payload))
+###execute light comand
+def light_cmd_exe (msg, client,light_pin):
+    payload = json.loads(str(msg.payload))
+    try:
+        if payload['light']['switch'] == "on":
+                   print("turning on lights ..." )
+                   if (set_lights("on", light_pin)):
+                       light_cmd_ack(client, msg, payload, "ok")
+                   else:
+                       light_cmd_ack(client, msg, payload, "error: failed to trun on lights")
+        elif payload['light']['switch'] == "off":
+            print("turning off lights ...")
+            if (set_lights("off", light_pin)):
+                light_cmd_ack(client, msg, payload, "ok")
+            else:
+                light_cmd_ack(client, msg, payload, "error: failed to trun on lights")
+    except Exception as err:
+        print("error, command/argument :" + str(err) + "doesn't exist")
+
+
+
+
+
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
         if rc == 0:
@@ -71,54 +109,18 @@ def on_connect(client, userdata, flags, rc):
                 # Subscribing in on_connect() - if we lose the connection and
                 # reconnect then subscriptions will be renewed.
                 #subscribe to light topics to listen for lights on
-                client.subscribe(sl1_topic) 
-                client.subscribe(sl2_topic) 
+                client.subscribe(cmd_topic(sl1_topic)) 
+                client.subscribe(cmd_topic(sl2_topic)) 
         else:
                 print("Failed connecting to Broker Check credentials and broker address")
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload))
-    payload = json.loads(str(msg.payload))
-    try:
-        if msg.topic == (sl1_topic):
-            if payload['light']['switch'] == "on":
-                print("turning on lights on street 1 ...")
-                if (set_lights("on", sl1)):
-                    ##prep ack object
-                    payload['light']['switch'] = "ok"
-                    ##send ack with json
-                    client.publish(ack_topic(str(msg.topic)), json.dumps(payload))
-                    ##TODO error Handling
-            elif payload['light']['switch'] == "off":
-                print("turning off lights on street 1 ...")
-                if (set_lights("off", sl1)):
-                    ##prep ack object
-                    payload['light']['switch'] = "ok"
-                    ##send ack with json
-                    client.publish(ack_topic(str(msg.topic)), json.dumps(payload))
-                    ##TODO error Handling
-            
-
-        if msg.topic == (sl1_topic):
-            if payload['light']['switch'] == "on":
-                print("turning on lights on street 2 ...")
-                if (set_lights("on", sl2)):
-                    ##prep ack object
-                    payload['light']['switch'] = "ok"
-                    ##send ack with json
-                    client.publish(ack_topic(msg.topic), json.dumps(payload))
-                    ##TODO error Handling
-                elif payload['light']['switch'] == "off":
-                    print("turning off lights on street 2 ...")
-                    if (set_lights("off", sl2)):
-                        ##prep ack object
-                        payload['light']['switch'] = "ok"
-                        ##send ack with json
-                        client.publish(ack_topic(str(msg.topic)), json.dumps(payload))
-                        ##TODO error Handling
-    except:
-        print("something went wrong")
+    print(msg.topic+" "+ str(msg.payload))
+    if msg.topic == (cmd_topic(sl1_topic)): 
+        light_cmd_exe(msg, client,sl1)
+    elif msg.topic == (cmd_topic(sl2_topic)):
+        light_cmd_exe(msg, client,sl2)
 
 # Create an MQTT client and attach our routines to it.
 client = mqtt.Client()
