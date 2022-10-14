@@ -13,7 +13,7 @@ file = 'config.ini'
 config = ConfigParser()
 config.read(file)
 
-##############Functions
+
 ##topic constructor
 def topic_constructor(protocol, service_api_key, sensor_id):
    return ("/" + protocol + "/" + service_api_key + "/" + sensor_id)
@@ -26,7 +26,6 @@ def cmd_topic(topic):
 
 def ack_topic(cmd_topic):
     return (cmd_topic + "exe")
-
 
 
 #config connection
@@ -78,7 +77,7 @@ def light_cmd_ack(client, msg, payload, status):
                     topic = ack_topic(str(msg.topic))
                     print("sending ack to topic:" +str(topic))
                     client.publish(ack_topic(str(msg.topic)), json.dumps(payload))
-###TO BE TESTED
+
 def update_light_status_attribute (client, msg, state):
     topic = attr_topic(str(msg.topic)[:-4])
     print("sending status update to topic: " +str(topic))
@@ -105,9 +104,6 @@ def light_cmd_exe (msg, client,light_pin):
                 light_cmd_ack(client, msg, payload, "error: failed to turn off lights")
     except Exception as err:
         print("error, expected command/argument :" + str(err) + ", received: " + str(msg.payload))
-
-
-
 
 
 # The callback for when the client receives a CONNACK response from the server.
@@ -142,5 +138,3 @@ client.connect(broker_address, port, 60)
 # https://github.com/eclipse/paho.mqtt.python
 # for information on how to use other loop*() functions
 client.loop_forever()
-
-
