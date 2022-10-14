@@ -1,3 +1,5 @@
+###TODO TEST PUBBLISHED MESSAGES
+
 # MQTT Client demo
 # Continuously monitor two different MQTT topics for data,
 # check if the received data matches two predefined 'commands'
@@ -17,7 +19,7 @@ def topic_constructor(protocol, service_api_key, sensor_id):
    return ("/" + protocol + "/" + service_api_key + "/" + sensor_id)
 
 def attr_topic(topic):
-    return (cmd_topic + "/attr")
+    return (topic + "/attr")
 
 def cmd_topic(topic):
     return (topic + "/cmd")
@@ -50,11 +52,6 @@ sl2 = [4,5]
 sl2_id = "sl2"
 sl2_topic = topic_constructor(protocol, service_api_key, sl2_id)
 
-###debug
-print(sl1_topic)
-print(sl2_topic)
-print(cmd_topic(sl1_topic))
-
 ##returns true if operation successfull
 def set_lights(setter, pins):
     status = 0
@@ -67,8 +64,8 @@ def set_lights(setter, pins):
     elif (setter == "off"):
         for pin in pins:
             status += digitalWrite(pin,0)
-            if status == 0:
-                return True
+        if status == len(pins):
+            return True
     else :
         print("setter invalid")
         return False
@@ -78,7 +75,15 @@ def light_cmd_ack(client, msg, payload, status):
      ##prep ack object
                     payload['light']['switch'] = status
                     ##send ack with json
+                    topic = ack_topic(str(msg.topic))
+                    print("sending ack to topic:" +str(topic))
                     client.publish(ack_topic(str(msg.topic)), json.dumps(payload))
+###TO BE TESTED
+def update_light_status_attribute (client, msg, state):
+    topic = attr_topic(str(msg.topic)[:-4])
+    print("sending status update to topic: " +str(topic))
+    client.publish(attr_topic(str(msg.topic)[:-4]), json.dumps({"powerState": state}))
+
 ###execute light comand
 def light_cmd_exe (msg, client,light_pin):
     payload = json.loads(str(msg.payload))
@@ -87,16 +92,19 @@ def light_cmd_exe (msg, client,light_pin):
                    print("turning on lights ..." )
                    if (set_lights("on", light_pin)):
                        light_cmd_ack(client, msg, payload, "ok")
+                       update_light_status_attribute(client,msg,"on")
+
                    else:
-                       light_cmd_ack(client, msg, payload, "error: failed to trun on lights")
+                       light_cmd_ack(client, msg, payload, "error: failed to turn on lights")
         elif payload['light']['switch'] == "off":
             print("turning off lights ...")
             if (set_lights("off", light_pin)):
                 light_cmd_ack(client, msg, payload, "ok")
+                update_light_status_attribute(client,msg,"off")
             else:
-                light_cmd_ack(client, msg, payload, "error: failed to trun on lights")
+                light_cmd_ack(client, msg, payload, "error: failed to turn off lights")
     except Exception as err:
-        print("error, command/argument :" + str(err) + "doesn't exist")
+        print("error, expected command/argument :" + str(err) + ", received: " + str(msg.payload))
 
 
 
