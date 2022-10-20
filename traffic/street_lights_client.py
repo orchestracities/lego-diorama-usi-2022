@@ -1,4 +1,4 @@
-# MQTT Stree Client
+# MQTT Street Lights Client
 # Continuously monitor two different MQTT topics for data,
 # check if the received data matches two predefined 'commands'
 import paho.mqtt.client as mqtt
@@ -34,25 +34,24 @@ broker_address = str(config['connection']['broker_address'])
 port = int(config['connection']['port'])
 username = str(config['connection']['username'])
 password = str(config['connection']['password'])
+    
 # topic base config
 protocol = str(config['connection']['protocol'])
-service_api_key = str(config['Street_lights']['lights_service_api_key'])
+service_api_key = str(config['street_lights']['lights_service_api_key'])
 
 # streetlight 1 def, considered 1 port for 2 led to be changed if 4 led fit in one port
 # Use digital pins for led from 2 to 8
-sl1 = json.loads(config.get("Street_lights", "sl1"))
-sl1_id = str(config['Street_lights']['sl1_id'])
+sl1 = json.loads(config.get("street_lights", "sl1"))
+sl1_id = str(config['street_lights']['sl1_id'])
 sl1_topic = topic_constructor(protocol, service_api_key, sl1_id)
 
 # streetlight 2 def considered 1 port for 2 led to be changed if 4 led fit in one port
 # Use digital pins for led from 2 to 8
-sl2 = json.loads(config.get("Street_lights", "sl2"))
-sl2_id = str(config['Street_lights']['sl2_id'])
+sl2 = json.loads(config.get("street_lights", "sl2"))
+sl2_id = str(config['street_lights']['sl2_id'])
 sl2_topic = topic_constructor(protocol, service_api_key, sl2_id)
 
 # returns true if operation successfull
-
-
 def set_lights(setter, pins):
     status = 0
     if (setter == "on"):
@@ -71,8 +70,6 @@ def set_lights(setter, pins):
         return False
 
 # send light ack
-
-
 def light_cmd_ack(client, msg, payload, status):
     # prep ack object
     payload['light']['switch'] = status
@@ -89,8 +86,6 @@ def update_light_status_attribute(client, msg, state):
         str(msg.topic)[:-4]), json.dumps({"powerState": state}))
 
 # execute light comand
-
-
 def light_cmd_exe(msg, client, light_pin):
     payload = json.loads(str(msg.payload))
     try:
@@ -129,19 +124,16 @@ def on_connect(client, userdata, flags, rc):
         print("Failed connecting to Broker Check credentials and broker address")
 
 # The callback for when a PUBLISH message is received from the server.
-
-
 def on_message(client, userdata, msg):
     print(msg.topic+" " + str(msg.payload))
     if msg.topic == (cmd_topic(sl1_topic)):
         light_cmd_exe(msg, client, sl1)
     elif msg.topic == (cmd_topic(sl2_topic)):
         light_cmd_exe(msg, client, sl2)
-
-
 # Create an MQTT client and attach our routines to it.
 client = mqtt.Client()
-# client.username_pw_set(username,password) #uncomment when using local broker
+if username is not None and password is not None:
+    client.username_pw_set(username,password)
 client.on_connect = on_connect
 client.on_message = on_message
 client.connect(broker_address, port, 60)
