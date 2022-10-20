@@ -51,9 +51,7 @@ password = str(config['connection']['password'])
 auth = {'username':username, 'password':password}
 ##topic base config
 protocol = "json"
-attrs ="attrs"
 service_api_key = "test_key"#str(config['Street 2']['service_api_key'])
-cmd="cmd"
 
 ##ir Sensor data and functions
 ##Connect the ir sensor at port d5 (see initial note)
@@ -61,10 +59,50 @@ ir_pin = 6
 grovepi.pinMode(ir_pin,"INPUT")
 ir_id = "ir"
 ir_topic = topic_constructor(protocol, service_api_key, ir_id)
+ir_car_counter = 0
 
 
 
 
+## Obstacle sensor data and function
+## connect the obstacle sensor to port d8
+os_pin = 8
+grovepi.pinMode(os_pin,"INPUT")
+os_id = "os"
+os_topic = topic_constructor(protocol, service_api_key, os_id)
+os_car_counter = 0
+
+##update sensor counter
+def update_counter(sensor_pin, counter):
+    if sensor_pin == ir_pin:
+        try:
+            # Sensor returns LOW and onboard LED lights up when the
+            # received infrared light intensity exceeds the calibrated level
+            if grovepi.digitalRead(ir_pin) == 0:
+              #increase counter if car found
+              counter += 1
+            else:
+               print ("ir sensor: no car detectected")
+        except IOError:
+            print ("IO Error")
+    elif sensor_pin == os_pin:
+        try:
+             ## obstacle sensor no obstacle:   
+            if grovepi.digitalRead(os_pin) == 1:
+                print ("no car detected")
+            ###obstacle:
+            else:
+                counter += 1
+        except IOError:
+            print ("IO Error")
+    else:
+        print("Passed invalid sensor pin, valid pins: " + str(os_pin) + ", " + str(ir_pin) + "\n counter update failed returnin passed counter:" )
+    return counter
+
+
+
+
+##publish sensor counter
 def pub_counter(counter,  sensor_base_topic,  authentication, broker_address, port_number):
     ##create topic
     pub_topic = attr_topic(sensor_base_topic)
@@ -75,27 +113,21 @@ def pub_counter(counter,  sensor_base_topic,  authentication, broker_address, po
     publish.single(pub_topic, payload=counter_obj, hostname=broker_address, port=port_number, auth=authentication)
 
 
-
-def monitor_traffic(ir_pin,s1_car_counter):
+def monitor_traffic(ir_pin, os_pin):
     while True:
         try:
-            # Sensor returns LOW and onboard LED lights up when the
-            # received infrared light intensity exceeds the calibrated level
-            if grovepi.digitalRead(ir_pin) == 0:
-                ##increase counter if car found
-              s1_car_counter += 1
-                ## send signal to turn on lights
-            else:
-               print ("no car detectected")
-            sleep(5) ##used to not overload pubblic mqtt server change this when personal mqtt is used 
+            ir_car_counter = update_counter(ir_pin)
+            os_car_counter = update_counter(os_pin)
+            #publish counter
+            pub_counter(ir_car_counter, ir_topic, None, broker_address, port) #authentication not used for now change none with auth param when using private broker
+            pub_counter(os_car_counter, os_topic, None, broker_address, port) #authentication not used for now change none with auth param when using private broker
+        except:
+            print ("Something went wrong")
 
-        except IOError:
-            print ("Error")
 
-## Obstacle sensor data and function
-## connect the obstacle sensor to port d8
-obstacle_sensor = 8
-s2_car_counter = 0
+##start monitoring
+
+monitor_traffic(ir_pin, os_pin)
 
 
 
