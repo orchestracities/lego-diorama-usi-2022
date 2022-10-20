@@ -40,7 +40,7 @@
 
 #include "Ultrasonic.h"
 
-Ultrasonic ultrasonic(7);
+Ultrasonic ultrasonic(3);
 void setup() {
     Serial.begin(9600);
 }

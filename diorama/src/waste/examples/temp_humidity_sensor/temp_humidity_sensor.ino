@@ -12,7 +12,7 @@
 
 /*Notice: The DHT10 and DHT20 is different from other DHT* sensor ,it uses i2c interface rather than one wire*/
 /*So it doesn't require a pin.*/
-#define DHTPIN 2     // what pin we're connected to（DHT10 and DHT20 don't need define it）
+#define DHTPIN 5     // what pin we're connected to（DHT10 and DHT20 don't need define it）
 DHT dht(DHTPIN, DHTTYPE);   //   DHT11 DHT21 DHT22
 //DHT dht(DHTTYPE);         //   DHT10 DHT20 don't need to define Pin
 
