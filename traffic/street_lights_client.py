@@ -132,7 +132,7 @@ def on_message(client, userdata, msg):
         light_cmd_exe(msg, client, sl2)
 # Create an MQTT client and attach our routines to it.
 client = mqtt.Client()
-if username is not None and password is not None:
+if username is not None or password is not None:
     client.username_pw_set(username,password)
 client.on_connect = on_connect
 client.on_message = on_message
