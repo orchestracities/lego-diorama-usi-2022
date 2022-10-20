@@ -49,25 +49,28 @@ broker_address = str(config['connection']['broker_address'])
 port = int(config['connection']['port'])
 username = str(config['connection']['username'])
 password = str(config['connection']['password'])
-# authentication object needed to publish on topic
-auth = {'username': username, 'password': password}
+auth = None
+if username is not None and password is not None:
+    if username != "" and password != "":
+    # authentication object needed to publish on topic
+        auth = {'username': username, 'password': password}
 # topic base config
 protocol = str(config['connection']['protocol'])
-service_api_key = str(config['Traffic_counter']['traffic_service_api_key'])
+service_api_key = str(config['traffic_counter']['traffic_service_api_key'])
 
 # VCNL 4010 IR Sensor setup
 # Connect the ir sensor at port d6 NOT d7 (see initial note)
-ir_pin = int(config['Traffic_counter']['ir_pin'])
+ir_pin = int(config['traffic_counter']['ir_pin'])
 grovepi.pinMode(ir_pin, "INPUT")
-ir_id = str(config['Traffic_counter']['ir_id'])
+ir_id = str(config['traffic_counter']['ir_id'])
 ir_topic = topic_constructor(protocol, service_api_key, ir_id)
 
 
 # Obstacle sensor set up
 # connect the obstacle sensor to port d8
-os_pin = int(config['Traffic_counter']['os_pin'])
+os_pin = int(config['traffic_counter']['os_pin'])
 grovepi.pinMode(os_pin, "INPUT")
-os_id = str(config['Traffic_counter']['os_id'])
+os_id = str(config['traffic_counter']['os_id'])
 os_topic = topic_constructor(protocol, service_api_key, os_id)
 
 # update sensor counter
@@ -122,9 +125,9 @@ def monitor_traffic(ir_pin, os_pin):
         os_car_counter = update_counter(os_pin, os_car_counter)
         # publish counter
         # authentication not used for now change none with auth param when using private broker
-        pub_counter(ir_car_counter, ir_topic, None, broker_address, port)
+        pub_counter(ir_car_counter, ir_topic, auth, broker_address, port)
         # authentication not used for now change none with auth param when using private broker
-        pub_counter(os_car_counter, os_topic, None, broker_address, port)
+        pub_counter(os_car_counter, os_topic, auth, broker_address, port)
         sleep(2)  # used to limit traffic to public mqtt server
 
 
