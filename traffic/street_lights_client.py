@@ -34,19 +34,19 @@ port = int(config['connection']['port'])
 username = str(config['connection']['username'])
 password = str(config['connection']['password'])
 ##topic base config
-protocol = "json"
+protocol = "json" #str(config['connection']['protocol'])
 service_api_key = "test_key"#str(config['Street 2']['service_api_key'])
 
 ##streetlight 1 def considered 1 port for 2 led to be changed if 4 led fit in one port
 ## Use digital pins for led from 2 to 8
 sl1 = [2,3]
-sl1_id = "sl1"
+sl1_id = "sl1" #str(config['street1']['sl1_id'])
 sl1_topic = topic_constructor(protocol, service_api_key, sl1_id)
 
 ##streetlight 2 def considered 1 port for 2 led to be changed if 4 led fit in one port
 ## Use digital pins for led from 2 to 8
 sl2 = [4,5]
-sl2_id = "sl2"
+sl2_id = "sl2" #str(config['street2']['sl2_id'])
 sl2_topic = topic_constructor(protocol, service_api_key, sl2_id)
 
 ##returns true if operation successfull
