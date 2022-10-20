@@ -19,7 +19,7 @@ def topic_constructor(protocol, service_api_key, sensor_id):
    return ("/" + protocol + "/" + service_api_key + "/" + sensor_id)
 
 def attr_topic(topic):
-    return (topic + "/attr")
+    return (topic + "/attrs")
 
 def cmd_topic(topic):
     return (topic + "/cmd")
@@ -35,9 +35,7 @@ username = str(config['connection']['username'])
 password = str(config['connection']['password'])
 ##topic base config
 protocol = "json"
-attrs ="attrs"
 service_api_key = "test_key"#str(config['Street 2']['service_api_key'])
-cmd="cmd"
 
 ##streetlight 1 def considered 1 port for 2 led to be changed if 4 led fit in one port
 ## Use digital pins for led from 2 to 8
