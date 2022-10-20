@@ -19,7 +19,7 @@ from configparser import ConfigParser
 #           otherweise the sensor won't work. also leave port d5 and d3 free
 #           to ensure the sensor works correctly
 
-# Connect the Grove Infrared Distance Interrupt Sensor to digital port D5
+# Connect the Grove Infrared Distance Interrupt Sensor (ir) to digital port D5
 # (see above note)
 
 ##read values from config ini   
@@ -50,14 +50,14 @@ password = str(config['connection']['password'])
 ##authentication object needed to publish on topic
 auth = {'username':username, 'password':password}
 ##topic base config
-protocol = "json"
+protocol = "json" ## str(config['connection']['protocol'])
 service_api_key = "test_key"#str(config['Street 2']['service_api_key'])
 
 ##ir Sensor data and functions
 ##Connect the ir sensor at port d6 NOT d7 (see initial note)
-ir_pin = 7
+ir_pin = 7 #str(config['Street 1']['ir_pin'])
 grovepi.pinMode(ir_pin,"INPUT")
-ir_id = "ir"
+ir_id = "ir" #str(config['Street 1']['ir_id'])
 ir_topic = topic_constructor(protocol, service_api_key, ir_id)
 # ir_car_counter = 0
 
@@ -68,7 +68,7 @@ ir_topic = topic_constructor(protocol, service_api_key, ir_id)
 ## connect the obstacle sensor to port d8
 os_pin = 8
 grovepi.pinMode(os_pin,"INPUT")
-os_id = "os"
+os_id = "os" #str(config['Street 2']['os_id'])
 os_topic = topic_constructor(protocol, service_api_key, os_id)
 # os_car_counter = 0
 
@@ -118,22 +118,15 @@ def monitor_traffic(ir_pin, os_pin):
     ir_car_counter = 0
     os_car_counter = 0
     while True:
-        # try:
-            ir_car_counter = update_counter(ir_pin, ir_car_counter)
-            os_car_counter = update_counter(os_pin, os_car_counter)
-            #publish counter
-            pub_counter(ir_car_counter, ir_topic, None, broker_address, port) #authentication not used for now change none with auth param when using private broker
-            pub_counter(os_car_counter, os_topic, None, broker_address, port) #authentication not used for now change none with auth param when using private broker
-            sleep(2) #used to limit traffic to public mqtt server
-        # except:
-        #     print ("Something went wrong")
+        ir_car_counter = update_counter(ir_pin, ir_car_counter)
+        os_car_counter = update_counter(os_pin, os_car_counter)
+        #publish counter
+        pub_counter(ir_car_counter, ir_topic, None, broker_address, port) #authentication not used for now change none with auth param when using private broker
+        pub_counter(os_car_counter, os_topic, None, broker_address, port) #authentication not used for now change none with auth param when using private broker
+        sleep(2) #used to limit traffic to public mqtt server
+            
 
 
 ##start monitoring
 
 monitor_traffic(ir_pin, os_pin)
-
-
-
-
-
