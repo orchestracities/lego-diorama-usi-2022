@@ -6,8 +6,13 @@
 //Accelerometer on I2C
 
 #include <LoRaWan.h>
-#include <string.h>
-#include <stdlib.h>
+
+#include <CayenneLPP.h>
+CayenneLPP lpp(100);
+
+// #include <string.h>
+// #include <stdlib.h>
+
 #include <Wire.h>
 #include "MMA7660.h"
 #include "DHT.h"
@@ -28,8 +33,20 @@ DHT dht(DHTPIN, DHTTYPE);
 
 Ultrasonic ultrasonic(3); //Distance Sensor
 
-unsigned char data[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0xA,};
+// unsigned char data[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0xA,};
 char buffer[256];
+
+//MEASURE VALUES
+
+//Temp&HumSensor
+float temperature = 0, humidity = 0;
+
+//Accelerometer
+int8_t x = 0, y = 0, z = 0;
+float ax = 0, ay = 0, az = 0;
+
+//DistanceSensor
+int RangeInCentimeters = 0;
 
 
 void setup(void) {
@@ -46,38 +63,37 @@ void setup(void) {
   //Temperature & Humidity
   tempHumSetup();
 
-  //FLAME SENSOR
+  //FlameSensor
   pinMode(FLAME_SENSOR, INPUT);
 }
 
 void loop(void) {
+  lpp.reset(); //reset lpp to send new message
 
-  //Accelerometer Message
-  char accelerometerMSG[100];
-  strcpy(accelerometerMSG,accelerometerLoop());
-  bool msg1 = lora.transferPacketWithConfirmed(accelerometerMSG, 4);
+
+  //Temp&HumSensor
+  tempHumLoop();
+
+  lpp.addTemperature(1, temperature);
+  lpp.addRelativeHumidity(1,humidity);
+
+  //FlameSensor
+  lpp.addDigitalInput(1,isFlameDetected());
+
+  //DistanceSensor
+  distanceLoop();
+
+  lpp.addDigitalInput(2,RangeInCentimeters);
+
+  //Accelerometer
+  accelerometerLoop();
+  
+  lpp.addAccelerometer(1,x,y,z);
+  lpp.addAccelerometer(2, ax,ay,az);
+
+  bool msg1 = lora.transferPacketWithConfirmed(lpp.getBuffer(),lpp.getSize(),5);
   delay(4000);
-
-  //Flame Sensor Message
-  bool flameBool = isFlameDetected();
-  bool msg2 = flameBool ? lora.transferPacketWithConfirmed("Fire detected",4) :
-                          lora.transferPacketWithConfirmed("Fire not detected",4);
-  delay(4000);
-
-  //Temperature & Humidity Message
-  char TempMsg[50];
-  strcpy(TempMsg,tempHumLoop());
-  bool msg3 = lora.transferPacketWithConfirmed(TempMsg,4);
-  delay(4000);
-
-  //Distance Msg
-  char DistMsg[50];
-  strcpy(DistMsg,distanceLoop());
-  bool msg4 = lora.transferPacketWithConfirmed(DistMsg,4);
-  delay(4000);
-
 }
-
 
 //settings for the connection with the gateway
 void lorawanConfig() {
@@ -116,43 +132,19 @@ void lorawanConfig() {
 }
 
 //FLAME SENSOR
-
 bool isFlameDetected() {
   if (DEBUG) Serial.println(!digitalRead(FLAME_SENSOR));
   return !digitalRead(FLAME_SENSOR);
 }
 
-//accelerometer
+//ACCELEROMETER
 void accelerometerSetup() {
   accelerometer.init();
   Serial.begin(9600);
 }
 
-char * accelerometerLoop() {
-  int8_t x;
-  int8_t y;
-  int8_t z;
-  float ax, ay, az;
-
-  char * accelerometerMessage = (char *) malloc(100);
-  char sensorValue[6]= "";
-
-
+void accelerometerLoop() {
   accelerometer.getXYZ(&x, &y, &z);
-
-  sprintf(sensorValue, "%i",x);
-  strcpy(accelerometerMessage, "x: ");
-  strcat(accelerometerMessage,sensorValue);
-
-
-  sprintf(sensorValue, "%i",y);
-  strcat(accelerometerMessage, ", y: ");
-  strcat(accelerometerMessage,sensorValue);
-
-  sprintf(sensorValue, "%i",z);
-  strcat(accelerometerMessage, ", z: ");
-  strcat(accelerometerMessage,sensorValue);
-
 
   if (DEBUG) {
     Serial.print("x = "); Serial.println(x); Serial.print("y = ");
@@ -161,73 +153,44 @@ char * accelerometerLoop() {
 
   accelerometer.getAcceleration(&ax, &ay, &az);
 
-  sprintf(sensorValue, "%.2f",ax);
-  strcat(accelerometerMessage, ", ax: ");
-  strcat(accelerometerMessage,sensorValue);
-
-
-  sprintf(sensorValue, "%.2f",ay);
-  strcat(accelerometerMessage, ", ay: ");
-  strcat(accelerometerMessage,sensorValue);
-
-  sprintf(sensorValue, "%.2f",az);
-  strcat(accelerometerMessage, ", az: ");
-  strcat(accelerometerMessage,sensorValue);
-
-
   if (DEBUG) {
     Serial.println("accleration of X/Y/Z: "); Serial.print(ax); Serial.println(" g");
     Serial.print(ay); Serial.println(" g"); Serial.print(az); Serial.println(" g");
     Serial.println("*************");
   }
-
-  return accelerometerMessage;
 }
 
-// Temp & Hum
+// TEMP & HUM
 void tempHumSetup() {
     Wire.begin();
     dht.begin();
 }
 
-char * tempHumLoop() {
-    
+void tempHumLoop() {
     float temp_hum_val[2] = {0};
     // Reading temperature or humidity takes about 250 milliseconds!
     // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
 
-    char * tempHumMessage = (char *) malloc(50);
-    char buf[6]= "";
-
     if (!dht.readTempAndHumidity(temp_hum_val)) {
-        strcpy(tempHumMessage, "Hum: ");
-        sprintf(buf, "%.2f",temp_hum_val[0]);
-        strcat(tempHumMessage, buf);
-        strcat(tempHumMessage, ", ");
-        strcat(tempHumMessage, "Temp: ");
-        sprintf(buf, "%.2f",temp_hum_val[1]);
-        strcat(tempHumMessage, buf);;
+        temperature = temp_hum_val[0];
+        humidity = temp_hum_val[1];
+        if (DEBUG) {
+          Serial.println("collected temp/hum");
+          Serial.println(temperature);
+          Serial.println(humidity);
+        }
     } else {
-        strcpy(tempHumMessage, "Failed to get temp/hum.");
+        temperature = -1;
+        humidity = -1;
+        if (DEBUG) {
+          Serial.println("failed to collect temp/hum");
+          Serial.println(temperature);
+          Serial.println(humidity);
+        }
     }
-    Serial.println(tempHumMessage);
-    return tempHumMessage;
 }
 
-char * distanceLoop() {
-    int RangeInCentimeters;
-
-    char * distanceMessage = (char *) malloc(50);
-    char buf2[6]= "";
-
-    strcpy(distanceMessage,"Distance: ");
-
+//DIST SENSOR
+void distanceLoop() {
     RangeInCentimeters = (int)ultrasonic.MeasureInCentimeters(); // two measurements should keep an interval
-    sprintf(buf2, "%i",RangeInCentimeters);
-    strcat(distanceMessage,buf2);
-    strcat(distanceMessage," cm");
-
-    Serial.println(distanceMessage);
-
-    return distanceMessage;
 }
