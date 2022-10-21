@@ -109,7 +109,7 @@ def monitor_parking():
                 # turn on red turn of green
                 set_led(green_l_pin)
             # used to limit requests to public mqtt broker to avoid getting banned to be removed when using private mqtt broker
-            sleep(2)
+            sleep(sleep_time)
         except TypeError:
             print("Error")
         except IOError:
