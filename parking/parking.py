@@ -37,14 +37,14 @@ if username is not None and password is not None:
         auth = {'username': username, 'password': password}
 # topic base config
 protocol = str(config['connection']['protocol'])
-service_api_key = str(config['traffic_counter']['parking_service_api_key'])
+service_api_key = str(config['parking']['parking_service_api_key'])
 
 ##proximity sensor setup
 ps_pin = int(config['parking']['ps_pin'])
 ps_id = str(config['parking']['ps_id'])
 ps_topic = topic_constructor(protocol, service_api_key, ps_id)
 ##distance from which the car is  detected
-car_detection_distance = str(config['parking']['car_detection_distance'])
+car_detection_distance = int(config['parking']['car_detection_distance'])
 
 
 
@@ -58,11 +58,11 @@ green_l_id = str(config['parking']['green_l_id'])
 ##takes as input the pin of the led to turn off
 def set_led(led_pin_on):
     #trun on led
-    digitalWrite(led_pin_on, 1)
+    grovepi.digitalWrite(led_pin_on, 1)
     if led_pin_on == red_l_pin:
-        digitalWrite(green_l_pin, 0)
+        grovepi.digitalWrite(green_l_pin, 0)
     else:
-        digitalWrite(red_l_pin, 0)
+        grovepi.digitalWrite(red_l_pin, 0)
 
 # publish parking status
 def pub_parking_status(parking_spot_status,  sensor_base_topic,  authentication, broker_address, port_number):
@@ -84,6 +84,7 @@ def monitor_parking():
         try:
             # Read distance value from Ultrasonic
             car_dist = (grovepi.ultrasonicRead(ps_pin))
+            print("distace: " + str(car_dist))
             ##if car detected and parking spot free
             if car_dist <= car_detection_distance and parking_spot_status == "free":
                 ##set parking status to occupied
