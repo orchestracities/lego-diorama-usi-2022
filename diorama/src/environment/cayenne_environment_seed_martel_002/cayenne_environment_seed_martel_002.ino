@@ -1,9 +1,9 @@
 // code for seed-martel-002
 
-//multichannel_gas_sensor on I2C
-//air quality sensor on A0
-//sound sensor on A1
-//UV_sensor on A2
+// Multichannel Gas Sensor on I2C
+// Air Quality Sensor on A0
+// Sound Sensor on A1
+// UV_sensor on A2
 
 #include <LoRaWan.h>
 
@@ -11,13 +11,10 @@
 CayenneLPP lpp(100);
 
 #include <Wire.h>
+
 #include <string.h>
 #include <stdlib.h>
 
-
-#define DEBUG 1 // 1 to show debugging print in serial monitor, 0 to hide them
-
-//multichannel_gas_sensor
 #include <Multichannel_Gas_GMXXX.h>
 #ifdef SOFTWAREWIRE
     #include <SoftwareWire.h>
@@ -28,6 +25,8 @@ CayenneLPP lpp(100);
     GAS_GMXXX<TwoWire> gas;
 #endif
 
+#define DEBUG 1 // 1 to show debugging print in serial monitor, 0 to hide them
+
 //air quality sensor
 #include "Air_Quality_Sensor.h"
 
@@ -35,11 +34,10 @@ AirQualitySensor sensor(A0);
 
 //sound sensor
 const int pinSound = A1;
-int thresholdValue = 200;
+//int thresholdValue = 200;
 
-//UV_Sensor
+//UVSensor
 const int pinUV_Sensor = A2;
-
 
 static uint8_t recv_cmd[8] = {};
 
@@ -55,19 +53,16 @@ uint32_t NO2 = 0, C2H5OH = 0, VOC = 0, CO = 0;
 uint32_t quality = 0;
 
 //AirQualitySensor status
-// #define FORCE_SIGNAL 3;
-// #define HIGH_POLLUTION 2;
-// #define LOW_POLLUTION 1;
-// #define FRESH_AIR 0;
-
+//FORCE_SIGNAL 3;
+//HIGH_POLLUTION 2;
+//LOW_POLLUTION 1;
+//FRESH_AIR 0;
 
 //soundSensor
 int soundValue = 0;
 
 //UVSensor
 long UVvalue = 0;
-
-
 
 
 void setup(void) {
@@ -89,7 +84,7 @@ void loop(void) {
 
   lpp.reset(); //reset lpp to send new message
 
-  //multGasSensor
+  // MultGasSensor
   multGasSensorLoop();
   
   lpp.addDigitalInput(1,NO2);
@@ -97,21 +92,23 @@ void loop(void) {
   lpp.addDigitalInput(3,VOC);
   lpp.addDigitalInput(4,CO);
 
-  //airQualitySensor
+  // AirQualitySensor
   airQualityLoop();
+
   lpp.addDigitalInput(5, quality);
 
-  //soundSensor
+  // SoundSensor
   soundLoop();
+
   lpp.addDigitalInput(6,soundValue);
 
-  //UVSensor
+  // UVSensor
   UVSensorLoop();
+
   lpp.addDigitalInput(7, UVvalue);
 
   bool msg1 = lora.transferPacketWithConfirmed(lpp.getBuffer(),lpp.getSize(),5);
   delay(4000);
-
 }
 
 // settings for the connection with the gateway
@@ -125,9 +122,6 @@ void lorawanConfig() {
     memset(buffer, 0, 256);
     lora.getId(buffer, 256, 1);
     SerialUSB.print(buffer);
-
-    // lora.setKey("2B7E151628AED2A6ABF7158809CF4F3C", "2B7E151628AED2A6ABF7158809CF4F3C", "2B7E151628AED2A6ABF7158809CF4F3C");
-    // lora.setKey("51F58CAC3F5735E3D1F88DD3EADBE9C6", "51F58CAC3F5735E3D1F88DD3EADBE9C6", "51F58CAC3F5735E3D1F88DD3EADBE9C6");
 
     // void setId(char *DevAddr, char *DevEUI, char *AppEUI);
     lora.setId(NULL, "70B3D57ED00561F1", "8CF95720000569A6");
@@ -154,7 +148,7 @@ void lorawanConfig() {
 }
 
 
-//multichannel_gas_sensor
+// MULTICHANNEL GAS SENSOR
 void multGasSensorSetup() {
     gas.begin(Wire, 0x08); // use the hardware I2C
 }
@@ -166,7 +160,7 @@ void multGasSensorLoop() {
     CO = gas.measure_CO();
 }
 
-//air quality sensor
+// AIR QUALITY SENSOR
 void airQualitySetup() {
     Serial.println("Waiting sensor to init...");
     delay(20000);
@@ -198,14 +192,14 @@ void airQualityLoop() {
 
 }
 
-//sound sensor
+// SOUND SENSOR
 int soundLoop()
 {
     soundValue = analogRead(pinSound);   //read the sensorValue on Analog 0
     if (DEBUG) Serial.println(soundValue);
 }
 
-//UV_sensor
+//UV SENSOR
 void UVSensorLoop()
 {
     int sensorValue;

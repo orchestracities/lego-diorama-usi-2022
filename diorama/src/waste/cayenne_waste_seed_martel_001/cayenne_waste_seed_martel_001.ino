@@ -1,163 +1,168 @@
-//code for seed-martel-001
+// code for seed-martel-001
 
-//Temp sensor on D5
-//Fire sensor on D2
-//Dist Sensor on D3
-//Accelerometer on I2C
+// Temp sensor on D5
+// Fire sensor on D2
+// Dist Sensor on D3
+// Accelerometer on I2C
 
 #include <LoRaWan.h>
 
 #include <CayenneLPP.h>
 CayenneLPP lpp(100);
 
-// #include <string.h>
-// #include <stdlib.h>
-
 #include <Wire.h>
-#include "MMA7660.h"
+
 #include "DHT.h"
+#include "MMA7660.h"
 #include "Ultrasonic.h"
 
-#define DEBUG 1  //1 to show debugging print in serial monitor, 0 to hide them
+#define DEBUG 1 // 1 to show debugging print in serial monitor, 0 to hide them
 
-//accelerometer def
+// accelerometer def
 MMA7660 accelerometer;
 
-//Temp&Hum def
+// Temp&Hum def
 #define DHTTYPE DHT22 // DHT 22  (AM2302)
 #define DHTPIN 5      // what pin we're connected to（DHT10 and DHT20 don't need define it）
 DHT dht(DHTPIN, DHTTYPE);
 
-//digital pins def
-#define FLAME_SENSOR 2  //connect SENSOR to digital pin1
+// digital pins def
+#define FLAME_SENSOR 2 // connect SENSOR to digital pin1
 
-Ultrasonic ultrasonic(3); //Distance Sensor
+Ultrasonic ultrasonic(3); // Distance Sensor
 
 // unsigned char data[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0xA,};
 char buffer[256];
 
-//MEASURE VALUES
+// MEASURE VALUES
 
-//Temp&HumSensor
+// Temp&HumSensor
 float temperature = 0, humidity = 0;
 
-//Accelerometer
+// Accelerometer
 int8_t x = 0, y = 0, z = 0;
 float ax = 0, ay = 0, az = 0;
 
-//DistanceSensor
+// DistanceSensor
 int RangeInCentimeters = 0;
 
-
 void setup(void) {
-  SerialUSB.begin(115200);
-  // while (!SerialUSB)
-  //   ;
+    SerialUSB.begin(115200);
+    // while (!SerialUSB)
+    //   ;
 
-  //Lorawan Chip Config
-  lorawanConfig();
+    // Lorawan Chip Config
+    lorawanConfig();
 
-  //Accelerometer
-  accelerometerSetup();
+    // Accelerometer
+    accelerometerSetup();
 
-  //Temperature & Humidity
-  tempHumSetup();
+    // Temperature & Humidity
+    tempHumSetup();
 
-  //FlameSensor
-  pinMode(FLAME_SENSOR, INPUT);
+    // FlameSensor
+    pinMode(FLAME_SENSOR, INPUT);
 }
 
 void loop(void) {
-  lpp.reset(); //reset lpp to send new message
+    lpp.reset(); // reset lpp to send new message
 
+    // Temp&HumSensor
+    tempHumLoop();
 
-  //Temp&HumSensor
-  tempHumLoop();
+    lpp.addTemperature(1, temperature);
+    lpp.addRelativeHumidity(1, humidity);
 
-  lpp.addTemperature(1, temperature);
-  lpp.addRelativeHumidity(1,humidity);
+    // FlameSensor
+    lpp.addDigitalInput(1, isFlameDetected());
 
-  //FlameSensor
-  lpp.addDigitalInput(1,isFlameDetected());
+    // DistanceSensor
+    distanceLoop();
 
-  //DistanceSensor
-  distanceLoop();
+    lpp.addDigitalInput(2, RangeInCentimeters);
 
-  lpp.addDigitalInput(2,RangeInCentimeters);
+    // Accelerometer
+    accelerometerLoop();
 
-  //Accelerometer
-  accelerometerLoop();
-  
-  lpp.addAccelerometer(1,x,y,z);
-  lpp.addAccelerometer(2, ax,ay,az);
+    lpp.addAccelerometer(1, x, y, z);
+    lpp.addAccelerometer(2, ax, ay, az);
 
-  bool msg1 = lora.transferPacketWithConfirmed(lpp.getBuffer(),lpp.getSize(),5);
-  delay(4000);
+    bool msg1 = lora.transferPacketWithConfirmed(lpp.getBuffer(), lpp.getSize(), 5);
+    delay(4000);
 }
 
-//settings for the connection with the gateway
+// settings for the connection with the gateway
 void lorawanConfig() {
-  lora.init();
+    lora.init();
 
-  memset(buffer, 0, 256);
-  lora.getVersion(buffer, 256, 1);
-  SerialUSB.print(buffer);
+    memset(buffer, 0, 256);
+    lora.getVersion(buffer, 256, 1);
+    SerialUSB.print(buffer);
 
-  memset(buffer, 0, 256);
-  lora.getId(buffer, 256, 1);
-  SerialUSB.print(buffer);
+    memset(buffer, 0, 256);
+    lora.getId(buffer, 256, 1);
+    SerialUSB.print(buffer);
 
-  // void setId(char *DevAddr, char *DevEUI, char *AppEUI);
-  lora.setId(NULL, "70B3D57ED00561EC", "8CF957200005727C");
-  // setKey(char *NwkSKey, char *AppSKey, char *AppKey);
-  lora.setKey(NULL, NULL, "51F58CAC3F5735E3D1F88DD3EADBE9C6");
+    // void setId(char *DevAddr, char *DevEUI, char *AppEUI);
+    lora.setId(NULL, "70B3D57ED00561EC", "8CF957200005727C");
+    // setKey(char *NwkSKey, char *AppSKey, char *AppKey);
+    lora.setKey(NULL, NULL, "51F58CAC3F5735E3D1F88DD3EADBE9C6");
 
-  lora.setDeciveMode(LWOTAA);
-  lora.setDataRate(DR0, EU868);
+    lora.setDeciveMode(LWOTAA);
+    lora.setDataRate(DR0, EU868);
 
-  lora.setChannel(0, 868.1);
-  lora.setChannel(1, 868.3);
-  lora.setChannel(2, 868.5);
+    lora.setChannel(0, 868.1);
+    lora.setChannel(1, 868.3);
+    lora.setChannel(2, 868.5);
 
-  lora.setReceiceWindowFirst(0, 868.1);
-  lora.setReceiceWindowSecond(869.5, DR3);
+    lora.setReceiceWindowFirst(0, 868.1);
+    lora.setReceiceWindowSecond(869.5, DR3);
 
-  lora.setDutyCycle(false);
-  lora.setJoinDutyCycle(false);
+    lora.setDutyCycle(false);
+    lora.setJoinDutyCycle(false);
 
-  lora.setPower(14);
+    lora.setPower(14);
 
-  while (!lora.setOTAAJoin(JOIN))
-    ;
+    while (!lora.setOTAAJoin(JOIN))
+        ;
 }
 
-//FLAME SENSOR
+// FLAME SENSOR
 bool isFlameDetected() {
-  if (DEBUG) Serial.println(!digitalRead(FLAME_SENSOR));
-  return !digitalRead(FLAME_SENSOR);
+    if (DEBUG) Serial.println(!digitalRead(FLAME_SENSOR));
+    return !digitalRead(FLAME_SENSOR);
 }
 
-//ACCELEROMETER
+// ACCELEROMETER
 void accelerometerSetup() {
-  accelerometer.init();
-  Serial.begin(9600);
+    accelerometer.init();
+    Serial.begin(9600);
 }
 
 void accelerometerLoop() {
-  accelerometer.getXYZ(&x, &y, &z);
+    accelerometer.getXYZ(&x, &y, &z);
 
-  if (DEBUG) {
-    Serial.print("x = "); Serial.println(x); Serial.print("y = ");
-    Serial.println(y); Serial.print("z = "); Serial.println(z);
-  }
+    if (DEBUG) {
+        Serial.print("x = ");
+        Serial.println(x);
+        Serial.print("y = ");
+        Serial.println(y);
+        Serial.print("z = ");
+        Serial.println(z);
+    }
 
-  accelerometer.getAcceleration(&ax, &ay, &az);
+    accelerometer.getAcceleration(&ax, &ay, &az);
 
-  if (DEBUG) {
-    Serial.println("accleration of X/Y/Z: "); Serial.print(ax); Serial.println(" g");
-    Serial.print(ay); Serial.println(" g"); Serial.print(az); Serial.println(" g");
-    Serial.println("*************");
-  }
+    if (DEBUG) {
+        Serial.println("accleration of X/Y/Z: ");
+        Serial.print(ax);
+        Serial.println(" g");
+        Serial.print(ay);
+        Serial.println(" g");
+        Serial.print(az);
+        Serial.println(" g");
+        Serial.println("*************");
+    }
 }
 
 // TEMP & HUM
@@ -175,22 +180,26 @@ void tempHumLoop() {
         temperature = temp_hum_val[0];
         humidity = temp_hum_val[1];
         if (DEBUG) {
-          Serial.println("collected temp/hum");
-          Serial.println(temperature);
-          Serial.println(humidity);
+            Serial.println("collected temp/hum");
+            Serial.println(temperature);
+            Serial.println(humidity);
         }
     } else {
         temperature = -1;
         humidity = -1;
         if (DEBUG) {
-          Serial.println("failed to collect temp/hum");
-          Serial.println(temperature);
-          Serial.println(humidity);
+            Serial.println("failed to collect temp/hum");
+            Serial.println(temperature);
+            Serial.println(humidity);
         }
     }
 }
 
-//DIST SENSOR
+// DISTANCE SENSOR
 void distanceLoop() {
     RangeInCentimeters = (int)ultrasonic.MeasureInCentimeters(); // two measurements should keep an interval
+    if (DEBUG) {
+        Serial.print("Distance: ");
+        Serial.println(RangeInCentimeters);
+    }
 }
