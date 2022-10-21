@@ -48,7 +48,7 @@ ps_topic = topic_constructor(protocol, service_api_key, ps_id)
 car_detection_distance = int(config['parking']['car_detection_distance'])
 
 #sleeping time
-sleep_time = int(config['parking']['sleep'])
+sleep_time = int(config['parking']['sleep_time'])
 
 
 # led setup
