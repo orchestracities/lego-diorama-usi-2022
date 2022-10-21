@@ -47,6 +47,9 @@ ps_topic = topic_constructor(protocol, service_api_key, ps_id)
 # distance from which the car is  detected
 car_detection_distance = int(config['parking']['car_detection_distance'])
 
+#sleeping time
+sleep_time = int(config['parking']['sleep'])
+
 
 # led setup
 red_l_pin = int(config['parking']['red_l_pin'])
@@ -56,7 +59,6 @@ green_l_id = str(config['parking']['green_l_id'])
 
 # turn off red or green led and trun on the other
 # takes as input the pin of the led to turn off
-
 
 def set_led(led_pin_on):
     # trun on led
