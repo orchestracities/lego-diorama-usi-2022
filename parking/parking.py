@@ -9,6 +9,7 @@ file = 'config.ini'
 config = ConfigParser()
 config.read(file)
 
+
 def topic_constructor(protocol, service_api_key, sensor_id):
     return ("/" + protocol + "/" + service_api_key + "/" + sensor_id)
 
@@ -33,31 +34,32 @@ password = str(config['connection']['password'])
 auth = None
 if username is not None and password is not None:
     if username != "" and password != "":
-    # authentication object needed to publish on topic
+        # authentication object needed to publish on topic
         auth = {'username': username, 'password': password}
 # topic base config
 protocol = str(config['connection']['protocol'])
 service_api_key = str(config['parking']['parking_service_api_key'])
 
-##proximity sensor setup
+# proximity sensor setup
 ps_pin = int(config['parking']['ps_pin'])
 ps_id = str(config['parking']['ps_id'])
 ps_topic = topic_constructor(protocol, service_api_key, ps_id)
-##distance from which the car is  detected
+# distance from which the car is  detected
 car_detection_distance = int(config['parking']['car_detection_distance'])
 
 
-
-##led setup
+# led setup
 red_l_pin = int(config['parking']['red_l_pin'])
 red_l_id = str(config['parking']['red_l_id'])
 green_l_pin = int(config['parking']['green_l_pin'])
 green_l_id = str(config['parking']['green_l_id'])
 
-##turn off red or green led and trun on the other
-##takes as input the pin of the led to turn off
+# turn off red or green led and trun on the other
+# takes as input the pin of the led to turn off
+
+
 def set_led(led_pin_on):
-    #trun on led
+    # trun on led
     grovepi.digitalWrite(led_pin_on, 1)
     if led_pin_on == red_l_pin:
         grovepi.digitalWrite(green_l_pin, 0)
@@ -65,6 +67,8 @@ def set_led(led_pin_on):
         grovepi.digitalWrite(red_l_pin, 0)
 
 # publish parking status
+
+
 def pub_parking_status(parking_spot_status,  sensor_base_topic,  authentication, broker_address, port_number):
     # create topic
     pub_topic = attr_topic(sensor_base_topic)
@@ -79,31 +83,35 @@ def pub_parking_status(parking_spot_status,  sensor_base_topic,  authentication,
 
 def monitor_parking():
     parking_spot_status = "free"
-    ###ultrasonic sensor 
+    # ultrasonic sensor
     while True:
         try:
             # Read distance value from Ultrasonic
             car_dist = (grovepi.ultrasonicRead(ps_pin))
             print("distace: " + str(car_dist))
-            ##if car detected and parking spot free
+            # if car detected and parking spot free
             if car_dist <= car_detection_distance and parking_spot_status == "free":
-                ##set parking status to occupied
+                # set parking status to occupied
                 parking_spot_status = "occupied"
-                ##send message to update parking status
-                pub_parking_status(parking_spot_status, ps_topic, auth, broker_address, port)
-                ## turn on red turn of green
+                # send message to update parking status
+                pub_parking_status(parking_spot_status,
+                                   ps_topic, auth, broker_address, port)
+                # turn on red turn of green
                 set_led(red_l_pin)
             elif car_dist > car_detection_distance and parking_spot_status == "occupied":
-                ##set parking status to free
+                # set parking status to free
                 parking_spot_status = "free"
-                ##send message to update parking status
-                pub_parking_status(parking_spot_status, ps_topic, auth, broker_address, port)
-                ## turn on red turn of green
+                # send message to update parking status
+                pub_parking_status(parking_spot_status,
+                                   ps_topic, auth, broker_address, port)
+                # turn on red turn of green
                 set_led(green_l_pin)
-            sleep(2) ##used to limit requests to public mqtt broker to avoid getting banned to be removed when using private mqtt broker
+            # used to limit requests to public mqtt broker to avoid getting banned to be removed when using private mqtt broker
+            sleep(2)
         except TypeError:
-            print ("Error")
+            print("Error")
         except IOError:
-            print ("Error")
+            print("Error")
+
 
 monitor_parking()
