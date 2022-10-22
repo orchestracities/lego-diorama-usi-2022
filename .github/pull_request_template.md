@@ -35,9 +35,9 @@ If this is a relatively large or complex change, kick off the discussion by expl
 
 
 
-[cla]: https://raw.githubusercontent.com/orchestracities/ngsi-timeseries-api/master/individual_cla.pdf
+[cla]: https://raw.githubusercontent.com/orchestracities/lego-diorama-usi-2022/master/individual_cla.pdf
     "Martel Open Source Software Individual Contributor License Agreement"
-[contrib]: https://github.com/orchestracities/ngsi-timeseries-api/blob/master/CONTRIBUTING.md
-    "Contributing to QuantumLeap"
-[release]: https://github.com/orchestracities/ngsi-timeseries-api/blob/master/RELEASE_NOTES.md
-    "QuantumLeap Release Notes"
+[contrib]: https://github.com/orchestracities/lego-diorama-usi-2022/blob/master/CONTRIBUTING.md
+    "Contributing to Lego Diorama"
+[release]: https://github.com/orchestracities/lego-diorama-usi-2022/blob/master/RELEASE_NOTES.md
+    "Lego Diorama Release Notes"
