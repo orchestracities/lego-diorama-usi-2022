@@ -52,7 +52,7 @@ password = str(config['connection']['password'])
 auth = None
 if username is not None and password is not None:
     if username != "" and password != "":
-    # authentication object needed to publish on topic
+        # authentication object needed to publish on topic
         auth = {'username': username, 'password': password}
 # topic base config
 protocol = str(config['connection']['protocol'])
@@ -99,21 +99,36 @@ def update_counter(sensor_pin, counter):
         except IOError:
             print("IO Error")
     else:
-        print("Passed invalid sensor pin: " + str(sensor_pin) + ", valid pins: " +
-              str(os_pin) + ", " + str(ir_pin) + "\n counter update failed returnin passed counter:")
+        print(
+            "Passed invalid sensor pin: " +
+            str(sensor_pin) +
+            ", valid pins: " +
+            str(os_pin) +
+            ", " +
+            str(ir_pin) +
+            "\n counter update failed returnin passed counter:")
     return counter
 
 
 # publish sensor counter
-def pub_counter(counter,  sensor_base_topic,  authentication, broker_address, port_number):
+def pub_counter(
+        counter,
+        sensor_base_topic,
+        authentication,
+        broker_address,
+        port_number):
     # create topic
     pub_topic = attr_topic(sensor_base_topic)
     # create payload object (attr)
     counter_obj = {"car_counter": counter}
     # convert to json
     counter_obj = json.dumps(counter_obj)
-    publish.single(pub_topic, payload=counter_obj,
-                   hostname=broker_address, port=port_number, auth=authentication)
+    publish.single(
+        pub_topic,
+        payload=counter_obj,
+        hostname=broker_address,
+        port=port_number,
+        auth=authentication)
     print("published: " + str(counter) + " on topic: " + pub_topic)
 
 
@@ -124,9 +139,11 @@ def monitor_traffic(ir_pin, os_pin):
         ir_car_counter = update_counter(ir_pin, ir_car_counter)
         os_car_counter = update_counter(os_pin, os_car_counter)
         # publish counter
-        # authentication not used for now change none with auth param when using private broker
+        # authentication not used for now change none with auth param when
+        # using private broker
         pub_counter(ir_car_counter, ir_topic, auth, broker_address, port)
-        # authentication not used for now change none with auth param when using private broker
+        # authentication not used for now change none with auth param when
+        # using private broker
         pub_counter(os_car_counter, os_topic, auth, broker_address, port)
         sleep(2)  # used to limit traffic to public mqtt server
 

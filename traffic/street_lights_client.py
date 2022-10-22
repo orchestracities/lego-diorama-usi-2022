@@ -34,7 +34,7 @@ broker_address = str(config['connection']['broker_address'])
 port = int(config['connection']['port'])
 username = str(config['connection']['username'])
 password = str(config['connection']['password'])
-    
+
 # topic base config
 protocol = str(config['connection']['protocol'])
 service_api_key = str(config['street_lights']['lights_service_api_key'])
@@ -52,12 +52,14 @@ sl2_id = str(config['street_lights']['sl2_id'])
 sl2_topic = topic_constructor(protocol, service_api_key, sl2_id)
 
 # returns true if operation successfull
+
+
 def set_lights(setter, pins):
     status = 0
     if (setter == "on"):
         for pin in pins:
             status += digitalWrite(pin, 1)
-        if(status == len(pins)):
+        if (status == len(pins)):
             return True
 
     elif (setter == "off"):
@@ -70,6 +72,8 @@ def set_lights(setter, pins):
         return False
 
 # send light ack
+
+
 def light_cmd_ack(client, msg, payload, status):
     # prep ack object
     payload['light']['switch'] = status
@@ -86,6 +90,8 @@ def update_light_status_attribute(client, msg, state):
         str(msg.topic)[:-4]), json.dumps({"powerState": state}))
 
 # execute light comand
+
+
 def light_cmd_exe(msg, client, light_pin):
     payload = json.loads(str(msg.payload))
     try:
@@ -114,7 +120,7 @@ def light_cmd_exe(msg, client, light_pin):
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
-        print("Client successfully connected to broker with result code "+str(rc))
+        print("Client successfully connected to broker with result code " + str(rc))
         # Subscribing in on_connect() - if we lose the connection and
         # reconnect then subscriptions will be renewed.
         # subscribe to light topics to listen for lights on
@@ -124,16 +130,20 @@ def on_connect(client, userdata, flags, rc):
         print("Failed connecting to Broker Check credentials and broker address")
 
 # The callback for when a PUBLISH message is received from the server.
+
+
 def on_message(client, userdata, msg):
-    print(msg.topic+" " + str(msg.payload))
+    print(msg.topic + " " + str(msg.payload))
     if msg.topic == (cmd_topic(sl1_topic)):
         light_cmd_exe(msg, client, sl1)
     elif msg.topic == (cmd_topic(sl2_topic)):
         light_cmd_exe(msg, client, sl2)
+
+
 # Create an MQTT client and attach our routines to it.
 client = mqtt.Client()
 if username is not None and password is not None:
-    client.username_pw_set(username,password)
+    client.username_pw_set(username, password)
 client.on_connect = on_connect
 client.on_message = on_message
 client.connect(broker_address, port, 60)
