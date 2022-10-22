@@ -1,14 +1,18 @@
 # The Things Gateway Configuration
-Official tutorial: https://www.thethingsindustries.com/docs/gateways/thethingskickstartergateway/
 
-## Procedure:
-- Remove the white cover
-- Power on the TTN Gateway
-- Press the red button for 5 seconds to reset WiFi settings and Activation Settings
-- Connect to the WiFi signal emitted from the Gateway (ex. TheThings-Gateway-xxxxx)
-- Go to http://192.168.84.1/ and configure
+Official tutorial is available [here](https://www.thethingsindustries.com/docs/gateways/thethingskickstartergateway/)
 
-```
+## Procedure
+
+1. Remove the white cover
+1. Power on the TTN Gateway
+1. Press the red button for 5 seconds to reset WiFi settings
+  and Activation Settings
+1. Connect to the WiFi signal emitted from the Gateway
+  (ex. TheThings-Gateway-xxxxx)
+1. Go to [http://192.168.84.1/](http://192.168.84.1/) and configure
+
+```bash
 GatewayID:
 martel-ttn-01
 
@@ -24,8 +28,7 @@ After configuration wait until 4 out of 5 blue leds turn on.
 
 The TTN Gateway is now ready to use.
 
-## Led meaning documentation:
-https://www.thethingsnetwork.org/docs/gateways/gateway/ledstatus/
+> *NOTE*: The led meaning documentation is available [here](https://www.thethingsnetwork.org/docs/gateways/gateway/ledstatus/)
 
 # Seeeduino LoRaWAN Configuration
 
