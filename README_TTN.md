@@ -18,7 +18,7 @@ https://eu1.cloud.thethings.network/
 Gateway Key:
 NNSXS.NACIYY37UADMZG6O6XD7HRH6OM6XDHEKEIUU4CI.VSZHH6U77GJZHBQB2LNO6RQN3RFONSVYEUKI3OBZXPJGCU5EB4KQC0MM3NT01T4L1ANO
 ```
-- Ricordare di rimuovere la parte di sicurezza. 
+- Remember to remove the security part.
 
 After configuration wait until 4 out of 5 blue leds turn on.
 
@@ -91,3 +91,51 @@ All details are in the link down here:
 https://blog.squix.org/2017/07/seeeduino-lora-gps-getting-started-with-lorawan-and-ttn.html
 
 Compiling the OTAA sketch should make the Seeeduino connect to the Gateway and send messages to the TTN.
+
+# Required libraries for seed-martel-001
+
+Accelerometer
+- https://github.com/Seeed-Studio/Accelerometer_MMA7660
+
+Temperature and Humidity
+- https://github.com/Seeed-Studio/Grove_Temperature_And_Humidity_Sensor
+
+Ultrasonic Ranger
+- https://github.com/Seeed-Studio/Seeed_Arduino_UltrasonicRanger/archive/master.zip
+
+## Sensors Specifications
+
+Accelerometer
+- https://wiki.seeedstudio.com/Grove-3-Axis_Digital_Accelerometer-1.5g/
+
+Temperature and Humidity
+- https://wiki.seeedstudio.com/Grove-Temperature_and_Humidity_Sensor_Pro/
+
+Ultrasonic Ranger
+- https://wiki.seeedstudio.com/Grove-Ultrasonic_Ranger/
+
+Flame Sensor
+- https://wiki.seeedstudio.com/Grove-Flame_Sensor/
+
+
+# Required libraries for seed-martel-002
+Air Quality Sensor
+- https://github.com/Seeed-Studio/Grove_Air_quality_Sensor
+
+Gas Sensor
+- https://github.com/Seeed-Studio/Seeed_Multichannel_Gas_Sensor/archive/master.zip
+
+
+## Sensors Specifications
+
+Air Quality Sensor
+- https://wiki.seeedstudio.com/Grove-Air_Quality_Sensor_v1.3/
+
+Gas Sensor
+- https://wiki.seeedstudio.com/Grove-Multichannel-Gas-Sensor-V2/
+
+UV Sensor
+- https://wiki.seeedstudio.com/Grove-UV_Sensor/
+
+Sound Sensor
+- https://wiki.seeedstudio.com/Grove-Sound_Sensor/
