@@ -1,4 +1,5 @@
 import paho.mqtt.publish as publish
+import paho.mqtt.client as mqtt
 import grovepi
 import json
 from time import sleep
@@ -55,12 +56,18 @@ red_l_id = str(config['ev_parking']['red_l_id'])
 green_l_pin = int(config['ev_parking']['green_l_pin'])
 green_l_id = str(config['ev_parking']['green_l_id'])
 
-# turn off red or green led and trun on the other
-# takes as input the pin of the led to turn off
 
 # button
 button_pin = int(config['ev_parking']['button_pin'])
+button_id = str(config['ev_parking']['button_id'])
+button_topic = topic_constructor(protocol, service_api_key, button_id)
 grovepi.pinMode(button_pin, "INPUT")
+
+# charging flag 0 no charging 1 charging on going
+cf = 0
+
+# turn off red or green led and trun on the other
+# takes as input the pin of the led to turn off
 
 
 def set_led(led_pin_on):
@@ -93,20 +100,50 @@ def pub_charging_status(
     print("published: " + str(charging_status_obj) + " on topic: " + pub_topic)
 
 
+def pub_button_status(
+        button_status,
+        sensor_base_topic,
+        authentication,
+        broker_address,
+        port_number):
+    # create topic
+    pub_topic = attr_topic(sensor_base_topic)
+    # create payload object (attr)
+    button_status_obj = {'button': button_status}
+    # convert to json
+    button_status_obj = json.dumps(button_status_obj)
+    publish.single(
+        pub_topic,
+        payload=button_status_obj,
+        hostname=broker_address,
+        port=port_number,
+        auth=authentication)
+    print("published: " + str(button_status_obj) + " on topic: " + pub_topic)
+
+
 def red_led_blink():
     counter = 5
+    global cf
     try:
         # send charge status
         pub_charging_status(0, ps_topic, auth, broker_address, port)
         for i in range(counter):
-            # Blink the LED
-            grovepi.digitalWrite(red_l_pin, 1)     # Send HIGH to switch on LED
-            print("LED ON!")
-            sleep(1)
+            # check if charging is still on going
+            if cf == 1:
+                # Blink the LED
+                # Send HIGH to switch on LED
+                grovepi.digitalWrite(red_l_pin, 1)
+                print("LED ON!")
+                sleep(1)
 
-            grovepi.digitalWrite(red_l_pin, 0)     # Send LOW to switch off LED
-            print("LED OFF!")
-            sleep(1)
+                # Send LOW to switch off LED
+                grovepi.digitalWrite(red_l_pin, 0)
+                print("LED OFF!")
+                sleep(1)
+            # if charge intrerrupt:
+            else:
+                print("charging stopped")
+                break
         grovepi.digitalWrite(red_l_pin, 1)
         pub_charging_status(1, ps_topic, auth, broker_address, port)
     except KeyboardInterrupt:   # Turn LED off before stopping
@@ -142,7 +179,9 @@ def pub_parking_status(
 
 
 def monitor_parking():
+    # initialize parking spot
     parking_spot_status = "free"
+    set_led(green_l_pin)
     # ultrasonic sensor
     while True:
         try:
@@ -156,7 +195,7 @@ def monitor_parking():
                 # send message to update parking status
                 pub_parking_status(parking_spot_status,
                                    ps_topic, auth, broker_address, port)
-                # turn on red turn of green
+                # turn on red and turn off green
                 set_led(red_l_pin)
             elif car_dist > car_detection_distance and parking_spot_status == "occupied":
                 # set parking status to free
@@ -170,13 +209,82 @@ def monitor_parking():
             # banned to be removed when using private mqtt broker
             if (grovepi.digitalRead(button_pin) ==
                     1 and parking_spot_status == "occupied"):
-                # charging status message sent in red_led_blink()
-                red_led_blink()
+                pub_button_status("pressed",
+                                  button_topic, auth, broker_address, port)
             sleep(sleep_time)
         except TypeError:
             print("Error")
         except IOError:
             print("Error")
 
+
+def ps_cmd_ack(client, msg, payload, status):
+    # prep ack object
+    payload['ev_charging']['charge'] = status
+    # send ack with json
+    topic = ack_topic(str(msg.topic))
+    print("sending ack to topic:" + str(topic))
+    client.publish(ack_topic(str(msg.topic)), json.dumps(payload))
+
+
+def ps_cmd_exe(msg, client, ps_pin):
+    global cf
+    payload = json.loads(str(msg.payload))
+
+    try:
+        # if message to start charge received
+        if payload['ev_charging']['charge'] == "start":
+            print("start charging ...")
+            # start charging
+            cf = 1
+            # send ack
+            ps_cmd_ack(client, msg, payload, "ok")
+            red_led_blink()
+            # update_light_status_attribute(client, msg, "on")
+        elif payload['ev_charging']['charge'] == "stop":
+            print("interrupting charge ...")
+            cf = 0
+            ps_cmd_ack(client, msg, payload, "ok")
+            # update_light_status_attribute(client, msg, "off")
+    except Exception as err:
+        print("error, expected command/argument :" +
+              str(err) + ", received: " + str(msg.payload))
+
+# define client
+
+# The callback for when the client receives a CONNACK response from the server.
+
+
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        print("Client successfully connected to broker with result code " + str(rc))
+        # Subscribing in on_connect() - if we lose the connection and
+        # reconnect then subscriptions will be renewed.
+        # subscribe to light topics to listen for lights on
+        client.subscribe(cmd_topic(ps_topic))
+    else:
+        print("Failed connecting to Broker Check credentials and broker address")
+
+# The callback for when a PUBLISH message is received from the server.
+
+
+def on_message(client, userdata, msg):
+    print(msg.topic + " " + str(msg.payload))
+    if msg.topic == (cmd_topic(ps_topic)):
+        ps_cmd_exe(msg, client, ps_pin)
+
+
+# Create an MQTT client and attach our routines to it.
+client = mqtt.Client()
+if (username is not None and password is not None) or (
+        username != "" and password != ""):
+    client.username_pw_set(username, password)
+client.on_connect = on_connect
+client.on_message = on_message
+client.connect(broker_address, port, 60)
+
+# start client loop on separate thread the main will continue
+# disconnect and messages check handled independently
+client.loop_start()
 
 monitor_parking()
