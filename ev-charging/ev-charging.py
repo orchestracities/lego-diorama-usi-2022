@@ -78,7 +78,7 @@ def pub_charging_status(charging_status,  sensor_base_topic,  authentication, br
     # convert to json
     charging_status_obj = json.dumps(charging_status_obj)
     publish.single(pub_topic, payload=charging_status_obj,
-                   hostname = broker_address, port = port_number, auth = authentication)
+                   hostname=broker_address, port=port_number, auth=authentication)
     print("published: " + str(charging_status_obj) + " on topic: " + pub_topic)
 
 def red_led_blink():
@@ -112,7 +112,7 @@ def pub_parking_status(parking_spot_status,  sensor_base_topic,  authentication,
     # convert to json
     parking_spot_status_obj = json.dumps(parking_spot_status_obj)
     publish.single(pub_topic, payload=parking_spot_status_obj,
-                   hostname = broker_address, port = port_number, auth = authentication)
+                   hostname=broker_address, port=port_number, auth=authentication)
     print("published: " + str(parking_spot_status_obj) + " on topic: " + pub_topic)
 
 
