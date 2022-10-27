@@ -70,9 +70,22 @@ def set_led(led_pin_on):
     else:
         grovepi.digitalWrite(red_l_pin, 0)
 
+def pub_charging_status(charging_status,  sensor_base_topic,  authentication, broker_address, port_number):
+    # create topic
+    pub_topic = attr_topic(sensor_base_topic)
+    # create payload object (attr)
+    charging_status_obj = {'capacity': charging_status}
+    # convert to json
+    charging_status_obj = json.dumps(charging_status_obj)
+    publish.single(pub_topic, payload=charging_status_obj,
+                   hostname = broker_address, port = port_number, auth = authentication)
+    print("published: " + str(charging_status_obj) + " on topic: " + pub_topic)
+
 def red_led_blink():
     counter = 5
     try:
+        ##send charge status
+        pub_charging_status(0,ps_topic, auth, broker_address, port)
         for i in range (counter):
             #Blink the LED
             grovepi.digitalWrite(red_l_pin,1)     # Send HIGH to switch on LED
@@ -84,6 +97,7 @@ def red_led_blink():
             sleep(1)
         grovepi.digitalWrite(red_l_pin,1) 
     except KeyboardInterrupt:   # Turn LED off before stopping
+        pub_charging_status(1,ps_topic, auth, broker_address, port)
         grovepi.digitalWrite(red_l_pin,0)
     except IOError:             # Print "Error" if communication error encountered
         print ("Error")
@@ -94,12 +108,16 @@ def pub_parking_status(parking_spot_status,  sensor_base_topic,  authentication,
     # create topic
     pub_topic = attr_topic(sensor_base_topic)
     # create payload object (attr)
-    parking_spot__status_obj = {'parking_spot_status': parking_spot_status}
+    parking_spot_status_obj = {'parking_spot_status': parking_spot_status}
     # convert to json
-    parking_spot__status_obj = json.dumps(parking_spot__status_obj)
-    publish.single(pub_topic, payload=parking_spot__status_obj,
-                   hostname=broker_address, port=port_number, auth=authentication)
-    print("published: " + str(parking_spot__status_obj) + " on topic: " + pub_topic)
+    parking_spot_status_obj = json.dumps(parking_spot_status_obj)
+    publish.single(pub_topic, payload=parking_spot_status_obj,
+                   hostname = broker_address, port = port_number, auth = authentication)
+    print("published: " + str(parking_spot_status_obj) + " on topic: " + pub_topic)
+
+
+
+
 
 
 def monitor_parking():
@@ -129,6 +147,7 @@ def monitor_parking():
                 set_led(green_l_pin)
             # used to limit requests to public mqtt broker to avoid getting banned to be removed when using private mqtt broker
             if (grovepi.digitalRead(button_pin) == 1 and parking_spot_status == "occupied"):
+                #charging status message sent in red_led_blink()
                 red_led_blink()
             sleep(sleep_time)
         except TypeError:
