@@ -96,8 +96,8 @@ def red_led_blink():
             print ("LED OFF!")
             sleep(1)
         grovepi.digitalWrite(red_l_pin,1) 
-    except KeyboardInterrupt:   # Turn LED off before stopping
         pub_charging_status(1,ps_topic, auth, broker_address, port)
+    except KeyboardInterrupt:   # Turn LED off before stopping
         grovepi.digitalWrite(red_l_pin,0)
     except IOError:             # Print "Error" if communication error encountered
         print ("Error")
