@@ -47,7 +47,7 @@ ps_topic = topic_constructor(protocol, service_api_key, ps_id)
 # distance from which the car is  detected
 car_detection_distance = int(config['parking']['car_detection_distance'])
 
-#sleeping time
+# sleeping time
 sleep_time = int(config['parking']['sleep_time'])
 
 
@@ -60,6 +60,7 @@ green_l_id = str(config['parking']['green_l_id'])
 # turn off red or green led and trun on the other
 # takes as input the pin of the led to turn off
 
+
 def set_led(led_pin_on):
     # trun on led
     grovepi.digitalWrite(led_pin_on, 1)
@@ -71,16 +72,29 @@ def set_led(led_pin_on):
 # publish parking status
 
 
-def pub_parking_status(parking_spot_status,  sensor_base_topic,  authentication, broker_address, port_number):
+def pub_parking_status(
+        parking_spot_status,
+        sensor_base_topic,
+        authentication,
+        broker_address,
+        port_number):
     # create topic
     pub_topic = attr_topic(sensor_base_topic)
     # create payload object (attr)
     parking_spot__status_obj = {'parking_spot_status': parking_spot_status}
     # convert to json
     parking_spot__status_obj = json.dumps(parking_spot__status_obj)
-    publish.single(pub_topic, payload=parking_spot__status_obj,
-                   hostname=broker_address, port=port_number, auth=authentication)
-    print("published: " + str(parking_spot__status_obj) + " on topic: " + pub_topic)
+    publish.single(
+        pub_topic,
+        payload=parking_spot__status_obj,
+        hostname=broker_address,
+        port=port_number,
+        auth=authentication)
+    print(
+        "published: " +
+        str(parking_spot__status_obj) +
+        " on topic: " +
+        pub_topic)
 
 
 def monitor_parking():
@@ -108,7 +122,8 @@ def monitor_parking():
                                    ps_topic, auth, broker_address, port)
                 # turn on red turn of green
                 set_led(green_l_pin)
-            # used to limit requests to public mqtt broker to avoid getting banned to be removed when using private mqtt broker
+            # used to limit requests to public mqtt broker to avoid getting
+            # banned to be removed when using private mqtt broker
             sleep(sleep_time)
         except TypeError:
             print("Error")
