@@ -61,15 +61,19 @@ green_l_id = str(config['ev_parking']['green_l_id'])
 
 # button
 button_pin = int(config['ev_parking']['button_pin'])
-button_id =  str(config['ev_parking']['button_id'])
+button_id = str(config['ev_parking']['button_id'])
 button_topic = topic_constructor(protocol, service_api_key, ps_id)
 grovepi.pinMode(button_pin, "INPUT")
 
-#charging flag 0 no charging 1 charging on going
+# charging flag 0 no charging 1 charging on going
 cf = 0
 
 cmd_topic(ps_topic)
 
-publish.single(str(cmd_topic(ps_topic)), '{ "ev_charging": { "charge":  "start" } }', hostname="test.mosquitto.org")
+publish.single(str(cmd_topic(ps_topic)),
+               '{ "ev_charging": { "charge":  "start" } }',
+               hostname="test.mosquitto.org")
 sleep(2)
-publish.single(str(cmd_topic(ps_topic)), '{ "ev_charging": { "charge":  "stop" } }', hostname="test.mosquitto.org")
+publish.single(str(cmd_topic(ps_topic)),
+               '{ "ev_charging": { "charge":  "stop" } }',
+               hostname="test.mosquitto.org")
