@@ -143,47 +143,16 @@ def red_led_blink():
         print("LED OFF!")
         sleep(1)
 
-        #charging status complete
-        if (red_blink_iterations == 0 ) :
+        # charging status complete
+        if (red_blink_iterations == 0):
             pub_charging_status(1, ps_topic, auth, broker_address, port)
+            grovepi.digitalWrite(red_l_pin, 1)
 
         red_blink_iterations = red_blink_iterations - 1
     # if charge intrerrupt:
     else:
-        grovepi.digitalWrite(red_l_pin, 1)
+        # grovepi.digitalWrite(red_l_pin, 1)
         print("not charging")
-
-
-# def red_led_blink():
-#     counter = 5
-#     global cf
-#     try:
-#         # send charge status
-#         pub_charging_status(0, ps_topic, auth, broker_address, port)
-#         for i in range(counter):
-#             # check if charging is still on going
-#             if cf == 1:
-#                 # Blink the LED
-#                 # Send HIGH to switch on LED
-#                 grovepi.digitalWrite(red_l_pin, 1)
-#                 print("LED ON!")
-#                 sleep(1)
-
-#                 # Send LOW to switch off LED
-#                 grovepi.digitalWrite(red_l_pin, 0)
-#                 print("LED OFF!")
-#                 sleep(1)
-#             # if charge intrerrupt:
-#             else:
-#                 print("charging stopped")
-#                 break
-#         grovepi.digitalWrite(red_l_pin, 1)
-#         pub_charging_status(1, ps_topic, auth, broker_address, port)
-#     except KeyboardInterrupt:   # Turn LED off before stopping
-#         grovepi.digitalWrite(red_l_pin, 0)
-#     except IOError:             # Print "Error" if communication error encountered
-#         print("Error")
-# publish parking status
 
 
 def pub_parking_status(
@@ -218,8 +187,15 @@ def monitor_parking():
     # ultrasonic sensor
     while True:
         try:
+
             # Read distance value from Ultrasonic
             car_dist = (grovepi.ultrasonicRead(ps_pin))
+
+            if (car_dist > car_detection_distance):
+                set_led(green_l_pin)
+            else:
+                set_led(red_l_pin)
+
             print("distace: " + str(car_dist))
             # if car detected and parking spot free
             if car_dist <= car_detection_distance and parking_spot_status == "free":
@@ -244,9 +220,10 @@ def monitor_parking():
                     1 and parking_spot_status == "occupied"):
                 pub_button_status("pressed",
                                   button_topic, auth, broker_address, port)
-            
-            red_led_blink()
-            
+
+            if (parking_spot_status == "occupied"):
+                red_led_blink()
+
             sleep(sleep_time)
         except TypeError:
             print("Error")
@@ -291,7 +268,6 @@ def ps_cmd_exe(msg, client, ps_pin):
               str(err) + ", received: " + str(msg.payload))
 
 # define client
-
 # The callback for when the client receives a CONNACK response from the server.
 
 
