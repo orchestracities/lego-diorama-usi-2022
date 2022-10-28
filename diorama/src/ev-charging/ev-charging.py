@@ -48,7 +48,7 @@ ps_topic = topic_constructor(protocol, service_api_key, ps_id)
 # distance from which the car is  detected
 car_detection_distance = int(config['ev_parking']['car_detection_distance'])
 # sleep time
-sleep_time = int(config['ev_parking']['sleep_time'])
+sleep_time = float(config['ev_parking']['sleep_time'])
 
 # led setup
 red_l_pin = int(config['ev_parking']['red_l_pin'])
@@ -65,6 +65,10 @@ grovepi.pinMode(button_pin, "INPUT")
 
 # charging flag 0 no charging 1 charging on going
 cf = 0
+
+
+# iteration needed in led blink
+red_blink_iterations = -1
 
 # turn off red or green led and trun on the other
 # takes as input the pin of the led to turn off
@@ -122,34 +126,63 @@ def pub_button_status(
 
 
 def red_led_blink():
-    counter = 5
-    global cf
-    try:
-        # send charge status
-        pub_charging_status(0, ps_topic, auth, broker_address, port)
-        for i in range(counter):
-            # check if charging is still on going
-            if cf == 1:
-                # Blink the LED
-                # Send HIGH to switch on LED
-                grovepi.digitalWrite(red_l_pin, 1)
-                print("LED ON!")
-                sleep(1)
+    global red_blink_iterations
 
-                # Send LOW to switch off LED
-                grovepi.digitalWrite(red_l_pin, 0)
-                print("LED OFF!")
-                sleep(1)
-            # if charge intrerrupt:
-            else:
-                print("charging stopped")
-                break
+    if red_blink_iterations == 5:
+        pub_charging_status(0, ps_topic, auth, broker_address, port)
+
+    if (cf == 1) and (red_blink_iterations >= 0):
+        # Blink the LED
+        # Send HIGH to switch on LED
         grovepi.digitalWrite(red_l_pin, 1)
-        pub_charging_status(1, ps_topic, auth, broker_address, port)
-    except KeyboardInterrupt:   # Turn LED off before stopping
+        print("LED ON!")
+        sleep(1)
+
+        # Send LOW to switch off LED
         grovepi.digitalWrite(red_l_pin, 0)
-    except IOError:             # Print "Error" if communication error encountered
-        print("Error")
+        print("LED OFF!")
+        sleep(1)
+
+        #charging status complete
+        if (red_blink_iterations == 0 ) :
+            pub_charging_status(1, ps_topic, auth, broker_address, port)
+
+        red_blink_iterations = red_blink_iterations - 1
+    # if charge intrerrupt:
+    else:
+        grovepi.digitalWrite(red_l_pin, 1)
+        print("not charging")
+
+
+# def red_led_blink():
+#     counter = 5
+#     global cf
+#     try:
+#         # send charge status
+#         pub_charging_status(0, ps_topic, auth, broker_address, port)
+#         for i in range(counter):
+#             # check if charging is still on going
+#             if cf == 1:
+#                 # Blink the LED
+#                 # Send HIGH to switch on LED
+#                 grovepi.digitalWrite(red_l_pin, 1)
+#                 print("LED ON!")
+#                 sleep(1)
+
+#                 # Send LOW to switch off LED
+#                 grovepi.digitalWrite(red_l_pin, 0)
+#                 print("LED OFF!")
+#                 sleep(1)
+#             # if charge intrerrupt:
+#             else:
+#                 print("charging stopped")
+#                 break
+#         grovepi.digitalWrite(red_l_pin, 1)
+#         pub_charging_status(1, ps_topic, auth, broker_address, port)
+#     except KeyboardInterrupt:   # Turn LED off before stopping
+#         grovepi.digitalWrite(red_l_pin, 0)
+#     except IOError:             # Print "Error" if communication error encountered
+#         print("Error")
 # publish parking status
 
 
@@ -211,6 +244,9 @@ def monitor_parking():
                     1 and parking_spot_status == "occupied"):
                 pub_button_status("pressed",
                                   button_topic, auth, broker_address, port)
+            
+            red_led_blink()
+            
             sleep(sleep_time)
         except TypeError:
             print("Error")
@@ -229,7 +265,9 @@ def ps_cmd_ack(client, msg, payload, status):
 
 def ps_cmd_exe(msg, client, ps_pin):
     global cf
-    payload = json.loads(str(msg.payload))
+    global red_blink_iterations
+    data = msg.payload.decode("utf-8")
+    payload = json.loads(data)
 
     try:
         # if message to start charge received
@@ -237,13 +275,15 @@ def ps_cmd_exe(msg, client, ps_pin):
             print("start charging ...")
             # start charging
             cf = 1
+            red_blink_iterations = 5
             # send ack
             ps_cmd_ack(client, msg, payload, "ok")
-            red_led_blink()
+            # red_led_blink()
             # update_light_status_attribute(client, msg, "on")
         elif payload['ev_charging']['charge'] == "stop":
             print("interrupting charge ...")
             cf = 0
+            red_blink_iterations = -1
             ps_cmd_ack(client, msg, payload, "ok")
             # update_light_status_attribute(client, msg, "off")
     except Exception as err:
