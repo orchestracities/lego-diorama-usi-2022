@@ -7,6 +7,7 @@
 - Traffic Light Management (#9)
 - Traffic Management (#8)
 - Parking Management (#10)
+- Ev Charging (#11)
 
 ### Bug fixes
 
