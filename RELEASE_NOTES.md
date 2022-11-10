@@ -8,6 +8,7 @@
 - Traffic Management (#8)
 - Parking Management (#10)
 - Ev Charging (#11)
+- Demo docker stack (#28)
 
 ### Bug fixes
 
