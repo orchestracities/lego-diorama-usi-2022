@@ -1,0 +1,221 @@
+version: "3.8"
+services:
+  # Orion is the context broker
+  orion:
+    labels:
+      orchestracities: 'diorama'
+    image: fiware/orion:${ORION_VERSION}
+    hostname: orion
+    container_name: fiware-orion
+    depends_on:
+      - mongo-db
+    networks:
+      - default
+    expose:
+      - "${ORION_PORT}"
+    ports:
+      - "${ORION_PORT}:${ORION_PORT}" # localhost:1026
+    command: -dbhost mongo-db -logLevel DEBUG
+    healthcheck:
+      test: curl --fail -s http://orion:${ORION_PORT}/version || exit 1
+      interval: 5s
+
+  # IoT-Agent is configured for the JSON Protocol
+  iot-agent:
+    labels:
+      orchestracities: 'diorama'
+    image: fiware/iotagent-json:${JSON_VERSION}
+    hostname: iot-agent
+    container_name: fiware-iot-agent
+    depends_on:
+      - mongo-db
+    networks:
+      - default
+    ports:
+      - "${IOTA_NORTH_PORT}:${IOTA_NORTH_PORT}" # localhost:4041
+      - "${IOTA_SOUTH_PORT}:${IOTA_SOUTH_PORT}" # localhost:7896
+    environment:
+      - IOTA_CB_HOST=orion # name of the context broker to update context
+      - IOTA_CB_PORT=${ORION_PORT} # port the context broker listens on to update context
+      - IOTA_NORTH_PORT=${IOTA_NORTH_PORT}
+      - IOTA_REGISTRY_TYPE=mongodb #Whether to hold IoT device info in memory or in a database
+      - IOTA_LOG_LEVEL=DEBUG # The log level of the IoT Agent
+      - IOTA_DEFAULT_EXPRESSION_LANGUAGE=jexl
+      - IOTA_TIMESTAMP=true # Supply timestamp information with each measurement
+      - IOTA_CB_NGSI_VERSION=v2 # use NGSIv2 when sending updates for active attributes
+      - IOTA_AUTOCAST=true # Ensure Ultralight number values are read as numbers not strings
+      - IOTA_MONGO_HOST=mongo-db # The host name of MongoDB
+      - IOTA_MONGO_PORT=${MONGO_DB_PORT} # The port mongoDB is listening on
+      - IOTA_MONGO_DB=iotagentjson # The name of the database used in mongoDB
+      - IOTA_HTTP_PORT=${IOTA_SOUTH_PORT} # The port used for device traffic over HTTP
+      - IOTA_MQTT_HOST=mosquitto # The host name of the MQTT Broker
+      - IOTA_MQTT_PORT=1883 # The port the MQTT Broker is listening on to receive topics
+      - IOTA_DEFAULT_RESOURCE= # Default is blank. I'm using MQTT so I don't need a resource
+      - IOTA_PROVIDER_URL=http://iot-agent:${IOTA_NORTH_PORT}
+      - IOTA_DEFAULT_TRANSPORT=MQTT
+    healthcheck:
+      interval: 5s
+
+
+  iot-agent-lora:
+    labels:
+      orchestracities: 'diorama'
+    depends_on:
+      - mongo-db
+    entrypoint: bin/iotagent-lora docker/config-docker.js
+    image: ioeari/iotagent-lora:${LORA_VERSION}
+    hostname: iot-agent-lora
+    container_name: fiware-iot-agent-lora
+    networks:
+      - default
+    ports:
+      - "${LORA_NORTH_PORT}:${IOTA_NORTH_PORT}" # localhost:4042
+    environment:
+      - IOTA_CB_HOST=orion # name of the context broker to update context
+      - IOTA_CB_PORT=${ORION_PORT} # port the context broker listens on to update context
+      - IOTA_NORTH_PORT=${IOTA_NORTH_PORT}
+      - IOTA_REGISTRY_TYPE=mongodb #Whether to hold IoT device info in memory or in a database
+      - IOTA_LOG_LEVEL=DEBUG # The log level of the IoT Agent
+      - IOTA_DEFAULT_EXPRESSION_LANGUAGE=jexl
+      - IOTA_TIMESTAMP=true # Supply timestamp information with each measurement
+      - IOTA_CB_NGSI_VERSION=v2 # use NGSIv2 when sending updates for active attributes
+      - IOTA_AUTOCAST=true # Ensure Ultralight number values are read as numbers not strings
+      - IOTA_MONGO_HOST=mongo-db # The host name of MongoDB
+      - IOTA_MONGO_PORT=${MONGO_DB_PORT} # The port mongoDB is listening on
+      - IOTA_MONGO_DB=iotagentlorawan # The name of the database used in mongoDB
+      - IOTA_PROVIDER_URL=http://iot-agent-lora:${IOTA_NORTH_PORT}
+      - IOTA_DEFAULT_RESOURCE=/iot/lora
+    networks:
+      - default
+
+  # Quantum Leap is persisting Short Term History to Crate-DB
+  quantumleap:
+    labels:
+      orchestracities: 'diorama'
+    image: orchestracities/quantumleap:${QUANTUMLEAP_VERSION}
+    hostname: quantumleap
+    container_name: fiware-quantumleap
+    ports:
+      - "${QUANTUMLEAP_PORT}:${QUANTUMLEAP_PORT}"
+    depends_on:
+      - timescale-db
+      - redis-db
+    environment:
+      - POSTGRES_HOST=timescale-db
+      - POSTGRES_DB_USER=postgres
+      - POSTGRES_DB_PASS=${PGPASSWORD:-*}
+      - POSTGRES_DB_NAME=quantumleap
+      - QL_DEFAULT_DB=timescale
+      - REDIS_HOST=redis-db
+      - REDIS_PORT=${REDIS_PORT}
+      - LOGLEVEL=INFO
+    healthcheck:
+      test: curl --fail -s http://quantumleap:${QUANTUMLEAP_PORT}/version || exit 1
+
+  # Database
+  mongo-db:
+    labels:
+      orchestracities: 'diorama'
+    image: mongo:${MONGO_DB_VERSION}
+    hostname: mongo-db
+    container_name: db-mongo
+    expose:
+      - "${MONGO_DB_PORT}"
+    ports:
+      - "${MONGO_DB_PORT}:${MONGO_DB_PORT}" # localhost:27017
+    networks:
+      - default
+    volumes:
+      - mongo-db:/data
+    healthcheck:
+      test: |
+        host=`hostname --ip-address || echo '127.0.0.1'`; 
+        mongo --quiet $host/test --eval 'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)' && echo 0 || echo 1
+      interval: 5s
+
+  timescale-db:
+    hostname: timescale-db
+    container_name: db-timescale
+    labels:
+      orchestracities: 'diorama'
+    image: timescale/timescaledb-postgis:${TIMESCALE_VERSION}
+    ports:
+      - "5432:5432"
+    networks:
+      - default
+    environment:
+      - POSTGRES_PASSWORD=${PGPASSWORD:-*}
+      - PGPASSWORD=${PGPASSWORD:-*}
+    volumes:
+      - timescale-db:/home/postgres/pgdata/data
+
+  quantumleap-db-setup:
+    labels:
+      orchestracities: 'diorama'
+    image: orchestracities/quantumleap-pg-init:${QUANTUMLEAP_VERSION}
+    depends_on:
+      - timescale-db
+    networks:
+      - default
+    environment:
+      - QL_DB_PASS=*
+      - QL_DB_INIT_DIR=/ql-db-init
+      - PG_HOST=timescale-db
+      - PG_PASS=${PGPASSWORD:-*}
+
+  redis-db:
+    labels:
+      orchestracities: 'diorama'
+    image: redis:${REDIS_VERSION}
+    hostname: redis-db
+    container_name: db-redis
+    networks:
+      - default
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}" # localhost:6379
+    volumes:
+      - redis-db:/data
+
+  # Other services
+  grafana:
+    labels:
+      orchestracities: 'diorama'
+    image: grafana/grafana:${GRAFANA_VERSION}
+    container_name: grafana
+    depends_on:
+      - timescale-db
+    ports:
+      - "3003:${GRAFANA_PORT}"
+    volumes:
+      - grafana:/var/lib/grafana
+
+  mosquitto:
+    labels:
+      orchestracities: 'diorama'
+    image: eclipse-mosquitto:1.6.14
+    hostname: mosquitto
+    container_name: mosquitto
+    expose:
+      - "1883"
+      - "9001"
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    networks:
+      - default
+
+networks:
+  default:
+    labels:
+      org.fiware: 'tutorial'
+    ipam:
+      config:
+        - subnet: 172.18.1.0/24
+
+volumes:
+  mongo-db: ~
+  redis-db: ~
+  timescale-db: ~
+  grafana: ~
