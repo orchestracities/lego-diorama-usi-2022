@@ -48,7 +48,7 @@
     static domain_name_servers=192.168.4.1
     ```
 
-1. Enable `cgroup`: in the file `/boot/cmdline.txt` add 
+1. Enable `cgroup`: in the file `/boot/cmdline.txt` add
       `cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory`
 
 1. Update the system:
