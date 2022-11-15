@@ -1,4 +1,4 @@
-FROM orchestracities/grovepi
+FROM orchestracities/grovepi:3.7-buster
 #### Python
 # Install pip requirements
 USER root

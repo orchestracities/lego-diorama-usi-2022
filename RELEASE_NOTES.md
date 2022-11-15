@@ -9,6 +9,8 @@
 - Parking Management (#10)
 - Ev Charging (#11)
 - Demo docker stack (#28)
+- GrovePI base docker image
+- GrovePI example docker image
 
 ### Bug fixes
 
@@ -19,5 +21,7 @@
 - Automated workflow for change log
 
 ### Documentation
+
+- GrovePI + Docker setup
 
 ### Technical debt
