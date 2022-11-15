@@ -4,9 +4,8 @@
 
 1. Use [Raspberry Pi Imager](https://www.raspberrypi.com/software/)
     to flash each SD card.
-    From the imager Select the OS Ubuntu Server 22.04.1 LTS (make
-    sure to select the 64-bit server OS for arm64 architecture) or
-    Raspberry Pi OS Lite (64-bit).
+    From the imager Select `Raspberry Pi OS (Other)`
+    and then from the list pick `Raspberry Pi OS Lite (Legacy)`.
 
 1. Open the option tag and:
     - Set the hostname
@@ -21,7 +20,7 @@
     previous step. default credential:
 
     ```bash
-    ssh pi@raspberrypi.local
+    $ ssh pi@raspberrypi.local
     # user: pi
     # pass: raspberry
     ```
@@ -29,140 +28,127 @@
     or you can connect using your pi ip address:
 
     ```bash
-    ssh pi@your_pi_ip
+    $ ssh pi@your_pi_ip
     # user: pi
     # pass: raspberry
     ```
 
 1. configure a static ip address (optional)
-    - On your PI (Raspian Os Using Ethernet cable):
 
-        ```bash
-        sudo nano /etc/dhcpcd.conf
-        ```
+    ```bash
+    $ sudo nano /etc/dhcpcd.conf
+    ```
 
-        add the following lines to the file (the addresses are just an example):
+    add the following lines to the file (the addresses are just an example):
 
-        ```bash
-        inerface eth0
-        static ip_address = 192.168.3.2/24
-        static routers = 192.168.4.1
-        static domain_name_servers=192.168.4.1
-        ```
+    ```bash
+    inerface eth0
+    static ip_address = 192.168.3.2/24
+    static routers = 192.168.4.1
+    static domain_name_servers=192.168.4.1
+    ```
 
-    - On your pc (Linux)
-        - open your network manager:
-
-        ```bash
-        nm-connection-editor
-        ```
-
-        - add a new eth0 connection
-        - give it a name (eg. rpi)
-        - under IPv4 Settings
-            - set method to: Shared other computers (this allows
-              your rpi to use your pc internet connection)
-            - add the ip address: 192.168.4.1
-            - the Netmask: 24
-            - the Gateway: 192.186.4.1
-        - ensure that the system doesn't attempt to use the
-          ethernet connection for internet instead of wifi:
-
-        ```bash
-        nmcli connection modify rpi ipv4.never-default true
-        ```
-
-        (rpi is the connection name we set in the network manager)
-
-    > **TODO**: Ubuntu Server Lts Using Ethernet cable
-
-1. Enable `cgroup`
-
-    - Raspberry PI OS: in the file `/boot/cmdline.txt` add
-
-      ```bash
-      cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory
-      ```
-
-    - Ubuntu Server LTS: in the file `/boot/firmware/cmdline.txt`
-
-      ```bash
-      cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory
-       ```
+1. Enable `cgroup`: in the file `/boot/cmdline.txt` add 
+      `cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory`
 
 1. Update the system:
 
     ```bash
-    sudo apt-get update
-    sudo apt-get upgrade
+    $ sudo apt-get update
+    $ sudo apt-get upgrade
     ```
 
-1. Enable I2C and other settings.
+1. Enable I2C and other settings:
 
-    - Raspberry Pi OS
+    ```bash
+    $ sudo raspi-config
+    ```
 
-        ```bash
-        sudo raspi-config
-        ```
-
-    - Go to `Interfacing Options` and enable I2C and SPI.
+    - Go to `Interfacing Options` and enable `I2C` and `SPI`.
     - (Optional if you forgot to set them before flashing the sd card):
         - Set the hostname to the device name (e.g. `martel-rbp-0002`)
         - Set the password to `marteldiorama2022`
         - Set locale to `EN_US.UTF-8`
-    - Finish and Reboot
+    - Finish and Reboot:
 
-## Install Groove.py
+      ```bash
+      $ sudo reboot
+      ```
 
-1. Make sure I2C is enabled (see Os configuration 4.)
+## Install GrovePI
 
-1. Download groove.py and install dependencies:
+1. Test `I2C` is correctly enabled (see [OS Configuration](OS_Configuration)):
 
     ```bash
-    git clone https://github.com/Seeed-Studio/grove.py
-    cd grove.py
+    $ i2cdetect -y 1
+         0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+    00:          -- 04 -- -- -- -- -- -- -- -- -- -- -- 
+    10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    70: -- -- -- -- -- -- -- --   
     ```
 
-    - Python2 (This command line does not provide for RaspberryPI
-      OS 10 (Buster) >= 2020-12-02)
+  If you don't see `04` under the column `4` row `00` something went wrong.
 
-      ```bash
-      sudo pip install .
-      ```
+1. Install GrovePI:
 
-    - Python3 :
+    ```bash
+    $ curl -kL dexterindustries.com/update_grovepi | bash -s -- --bypass-gui-installation
+    ```
 
-      ```bash
-      sudo pip3 install .
-      ```
+### Test GrovePI (optional)
 
-1. the Groove.py documentation is available [HERE](https://seeed-studio.github.io/grove.py/)
+1. Download GrovePI project:
+
+    ```bash
+    $ cd Dexter
+    $ git clone https://github.com/DexterInd/GrovePi
+    ```
+
+1. Connect a LED to Digital Port 4 or your GrovePI Hat.
+
+1. Test the LED blinking script:
+
+    ```bash
+    $ cd GrovePi/Software/Python/
+    $ python grove_led_blink.py
+    ```
 
 ## Install Docker
 
-1. Install curl if you don't have it (curl --version to check)
+1. Install curl if needed (`curl --version` to check)
 
     ```bash
-    sudo apt install -y curl
+    $ sudo apt install -y curl
     ```
 
 1. Push the following installation script.
 
     ```bash
-    curl -fsSL https://get.docker.com -o get-docker.sh
+    $ curl -fsSL https://get.docker.com -o get-docker.sh
     ```
 
 1. Execute the script
 
     ```bash
-    sudo sh get-docker.sh
+    $ sudo sh get-docker.sh
     ```
 
 1. Append a non-root user on the Docker group
 
     ```bash
-    ‍sudo usermod -aG docker ${USER}
+    $ sudo usermod -aG docker ${USER}
     ```
+
+### Test Docker (optional)
+
+  ```bash
+  $ docker run hello-world
+  ```
 
 ## Install Microk8s and Kubedge
 
@@ -175,66 +161,66 @@ system which supports snapd)
 1. Install microk8s
 
     ```bash
-    sudo snap install microk8s --classic
-    sudo usermod -a -G microk8s $USER
-    sudo chown -f -R $USER ~/.kube
-    su - $USER
-    microk8s status --wait-ready
+    $ sudo snap install microk8s --classic
+    $ sudo usermod -a -G microk8s $USER
+    $ sudo chown -f -R $USER ~/.kube
+    $ su - $USER
+    $ microk8s status --wait-ready
     ```
 
     at this point you should be able to get your nodes with:
 
     ```bash
-    microk8s kubectl get nodes
+    $ microk8s kubectl get nodes
     ```
 
     (optional) you can assign an alias to avoid conflicts if you
      don't have previous install of kubectl:
 
     ```bash
-    alias kubectl='microk8s kubectl'
+    $ alias kubectl='microk8s kubectl'
     ```
 
 1. Install Kubeedge master node using Keadm
 
     ```bash
-    docker run --rm kubeedge/installation-package:v1.10.0 cat /usr/local/bin/keadm > /usr/local/bin/keadm && chmod +x /usr/local/bin/keadm
+    $ docker run --rm kubeedge/installation-package:v1.12.1 cat /usr/local/bin/keadm > /usr/local/bin/keadm && chmod +x /usr/local/bin/keadm
     ```
 
 1. initialize masternode
 
     ```bash
-    keadm init --advertise-address="your-pc-ip"
+    $ keadm init --advertise-address="your-pc-ip"
     ```
 
 1. Get your master node token (this will be used by the worker
   node to connect to the master node)
 
     ```bash
-    keadm gettoken
+    $ keadm gettoken
     ```
 
 ### Worker Node (RaspberryPi)
 
-Advised operating system: Ubuntu Server LTS 64-bit arm-64 but
-it will work also for Raspberry Pi OS Lite 64-bit arm-64.
+Required operating system for GrovePi compatibility:
+*Raspberry Pi OS Lite (Legacy)*.
+
+1. Access as root:
+
+    ```bash
+    $ sudo su -
+    ```
 
 1. Install kubeedge
 
     ```bash
-    docker run --rm kubeedge/installation-package:v1.10.0 cat /usr/local/bin/keadm > /usr/local/bin/keadm && chmod +x /usr/local/bin/keadm
-    ```
-
-1. access as root:
-
-    ```bash
-    sudo su -
+    $ docker run --rm kubeedge/installation-package:v1.12.1 cat /usr/local/bin/keadm > /usr/local/bin/keadm && chmod +x /usr/local/bin/keadm
     ```
 
 1. Create a node and joint the master node
 
     ```bash
-    keadm join --cloudcore-ipport=your-pc-ip:10000 --token=my-cloud-side-token
+    $ keadm join --cloudcore-ipport=your-pc-ip:10000 --token=my-cloud-side-token
     ```
 
     - `your-pc-ip` is the ip address of the pc you are using as a master)
@@ -252,7 +238,7 @@ it will work also for Raspberry Pi OS Lite 64-bit arm-64.
     - On the Master run the following command:
 
         ```bash
-        microk8s kubectl get nodes
+        $ microk8s kubectl get nodes
         ```
 
         - if your slave node appears in the node list congrats you are done!
@@ -261,7 +247,7 @@ it will work also for Raspberry Pi OS Lite 64-bit arm-64.
     - On the slave check the journal:
 
         ```bash
-        journalctl -u edgecore.service -xe
+        $ journalctl -u edgecore.service -xe
         ```
 
     - If you get the following error:
@@ -287,7 +273,7 @@ it will work also for Raspberry Pi OS Lite 64-bit arm-64.
     to fix this error you need to edit the `edgecore.yaml` file:
 
     ```bash
-    nano /etc/kubeedge/config/edgecore.yaml
+    $ nano /etc/kubeedge/config/edgecore.yaml
     ```
 
     replace: `cgroupDriver: cgroupfs` with: `cgroupDriver: systemd`,
@@ -295,13 +281,13 @@ it will work also for Raspberry Pi OS Lite 64-bit arm-64.
     verify with
 
     ```bash
-    microk8s kubectl get nodes
+    $ microk8s kubectl get nodes
     ```
 
 1. if it didn't work you probably used a wrong ip or port, run:
 
     ```bash
-    rm /etc/systemd/system/edgecore.service
+    $ rm /etc/systemd/system/edgecore.service
     ```
 
     and go back to step 3.
