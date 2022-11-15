@@ -1,4 +1,4 @@
-FROM navikey/raspbian-buster
+FROM navikey/raspbian-buster AS base-grovepi
 ENV DEBIAN_FRONTEND noninteractive
 ARG USER=pi
 ARG UID=1000
@@ -20,3 +20,15 @@ WORKDIR $HOME
 USER ${UID}
 
 RUN curl -kL dexterindustries.com/update_grovepi | bash -s -- --bypass-gui-installation
+USER root
+RUN apt-get autoremove --purge -y \
+&& apt-get clean -y \
+# Remove files outside base image.
+&& rm -rf /var/lib/apt/lists/* \
+&& rm -f /usr/sbin/policy-rc.d
+USER ${UID}
+
+# Collapse image to single layer.
+FROM scratch
+
+COPY --from=base-grovepi / /
