@@ -20,6 +20,7 @@
 - Automated workflow for Contributor License Agreement
 - Automated workflow for change log
 - Automated build of GrovePI base docker image
+- Automated build of GrovePI example docker image
 
 ### Documentation
 
