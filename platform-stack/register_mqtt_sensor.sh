@@ -22,7 +22,7 @@ sudo curl -iX POST \
      "resource":    ""
    },
    {
-     "apikey":      "EVAPI",
+     "apikey":      "EvAPI",
      "entity_type": "Ev-Charging",
      "resource":    ""
    }
@@ -103,7 +103,36 @@ sudo curl -iX POST \
         "attributes": [
           { "object_id": "parking_spot_status", "name": "parking_spot_status", "type": "String" }
         ]
-      }
+      },
+      {
+        "device_id":   "ev-charging001",
+        "entity_name": "urn:ngsi-ld:Ev-Charging:001",
+        "entity_type": "Ev-Charging",
+        "protocol":    "JSON",
+        "transport":   "MQTT",
+        "timezone":    "Europe/Berlin",
+        "attributes": [
+          { "object_id": "parking_spot_status", "name": "parking_spot_status", "type": "String" },
+          {"object_id": "capacity", "name": "capacity", "type": "Integer" }
+        ],
+         "commands": [
+           {
+               "name": "ev_charging",
+                "type": "command"
+           }
+         ]
+       },
+       {
+        "device_id":   "ev-charging002",
+        "entity_name": "urn:ngsi-ld:Ev-Charging:002",
+        "entity_type": "Ev-Charging",
+        "protocol":    "JSON",
+        "transport":   "MQTT",
+        "timezone":    "Europe/Berlin",
+        "attributes": [
+          { "object_id": "button", "name": "status", "type": "String" }
+        ]
+       }
     ]
 }'
 
@@ -206,7 +235,38 @@ sudo curl -iX POST \
   "throttling": 1
 }'
 
-
+##ecv-charging orion subscription
+sudo curl -iX POST \
+  'http://localhost:1026/v2/subscriptions/' \
+  -H 'Content-Type: application/json' \
+  -H 'fiware-service: openiot' \
+  -H 'fiware-servicepath: /' \
+  -d '{
+  "description": "Notify QuantumLeap of parking spot status changes",
+  "subject": {
+    "entities": [
+      {
+        "idPattern": ".*",
+        "type": "Ev-Charging"
+      }
+    ],
+    "condition": {
+      "attrs": [
+        "parking_spot_status", "capacity","status"
+      ]
+    }
+  },
+  "notification": {
+    "http": {
+      "url": "http://quantumleap:8668/v2/notify"
+    },
+    "attrs": [
+      "parking_spot_status","capacity","status"
+    ],
+    "metadata": ["dateCreated", "dateModified"]
+  },
+  "throttling": 1
+}'
 
 
 ###########TESTING
@@ -240,6 +300,10 @@ sudo curl -iX POST \
 #   fiware_default efrecon/mqtt-client pub -h mosquitto -m '{"light": {"switch" : "on"}}' \
 #   -t "/json/4jkkokgpepnvsb0sd7q21t53tu/lights001/cmd"
 
+# #send mqtt charge start message
+# sudo docker run -it --rm --name mqtt-publisher --network \
+#   fiware_default efrecon/mqtt-client pub -h mosquitto -m '{ "ev_charging": { "charge":  "start" } }' \
+#   -t "/json/EvAPI/ev-charging001/cmd"
 
 # # #check values in orion street sensors
 # sudo curl -X GET \
@@ -257,6 +321,14 @@ sudo curl -iX POST \
 #   -H 'fiware-service: openiot' \
 #   -H 'fiware-servicepath: /'
  
+ ##CHECK ev charging values in orion 
+# sudo curl -X GET \
+#   'http://localhost:1026/v2/entities/urn:ngsi-ld:Ev-Charging:001?options=keyValues' \
+#   -H 'fiware-service: openiot' \
+#   -H 'fiware-servicepath: /'
+ 
+
+
 
 # #check values in quantum leap
 # sudo curl -X GET \
@@ -271,9 +343,28 @@ sudo curl -iX POST \
 #   -H 'Accept: application/json' \
 #   -H 'Fiware-Service: openiot' \
 #   -H 'Fiware-ServicePath: /'
-#chech parking status in quantum leap
+#check parking status in quantum leap
 # sudo curl -X GET \
 #   'http://localhost:8668/v2/entities/urn:ngsi-ld:Parking:001/attrs/parking_spot_status?limit=3' \
+#   -H 'Accept: application/json' \
+#   -H 'Fiware-Service: openiot' \
+#   -H 'Fiware-ServicePath: /'
+
+#check ev charging status in quantum leap
+# sudo curl -X GET \
+#   'http://localhost:8668/v2/entities/urn:ngsi-ld:Ev-Charging:001/attrs/parking_spot_status?limit=3' \
+#   -H 'Accept: application/json' \
+#   -H 'Fiware-Service: openiot' \
+#   -H 'Fiware-ServicePath: /'
+#check ev charging status in quantum leap
+# sudo curl -X GET \
+#   'http://localhost:8668/v2/entities/urn:ngsi-ld:Ev-Charging:001/attrs/capacity?limit=3' \
+#   -H 'Accept: application/json' \
+#   -H 'Fiware-Service: openiot' \
+#   -H 'Fiware-ServicePath: /'
+#check ev charging status in quantum leap
+# sudo curl -X GET \
+#   'http://localhost:8668/v2/entities/urn:ngsi-ld:Ev-Charging:002/attrs/status?limit=3' \
 #   -H 'Accept: application/json' \
 #   -H 'Fiware-Service: openiot' \
 #   -H 'Fiware-ServicePath: /'
