@@ -15,6 +15,16 @@ sudo curl -iX POST \
      "apikey":      "4jkkokgpepnvsb0sd7q21t53tu",
      "entity_type": "Lights",
      "resource":    ""
+   },
+   {
+     "apikey":      "parkingApi",
+     "entity_type": "Parking",
+     "resource":    ""
+   },
+   {
+     "apikey":      "EVAPI",
+     "entity_type": "Ev-Charging",
+     "resource":    ""
    }
  ]
 }'
@@ -82,11 +92,22 @@ sudo curl -iX POST \
                "name": "light"
            }
          ]
-       }
+       },
+       {
+        "device_id":   "parking001",
+        "entity_name": "urn:ngsi-ld:Parking:001",
+        "entity_type": "Parking",
+        "protocol":    "JSON",
+        "transport":   "MQTT",
+        "timezone":    "Europe/Berlin",
+        "attributes": [
+          { "object_id": "parking_spot_status", "name": "parking_spot_status", "type": "String" }
+        ]
+      }
     ]
 }'
 
-#create subscription to foreward to orion to ql
+#create TrafficFlow subscription to foreward to orion to ql
 sudo curl -iX POST \
   'http://localhost:1026/v2/subscriptions/' \
   -H 'Content-Type: application/json' \
@@ -119,14 +140,14 @@ sudo curl -iX POST \
   "throttling": 1
 }'
 
-#lights subscription
+#lights orion subscription
 sudo curl -iX POST \
   'http://localhost:1026/v2/subscriptions/' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
   -d '{
-  "description": "Notify QuantumLeap of count changes of any Street Light",
+  "description": "Notify QuantumLeap of status changes of any Street Light",
   "subject": {
     "entities": [
       {
@@ -152,8 +173,43 @@ sudo curl -iX POST \
   "throttling": 1
 }'
 
+#parking orion subscription
+sudo curl -iX POST \
+  'http://localhost:1026/v2/subscriptions/' \
+  -H 'Content-Type: application/json' \
+  -H 'fiware-service: openiot' \
+  -H 'fiware-servicepath: /' \
+  -d '{
+  "description": "Notify QuantumLeap of parking spot status changes",
+  "subject": {
+    "entities": [
+      {
+        "idPattern": ".*",
+        "type": "Parking"
+      }
+    ],
+    "condition": {
+      "attrs": [
+        "parking_spot_status"
+      ]
+    }
+  },
+  "notification": {
+    "http": {
+      "url": "http://quantumleap:8668/v2/notify"
+    },
+    "attrs": [
+      "parking_spot_status"
+    ],
+    "metadata": ["dateCreated", "dateModified"]
+  },
+  "throttling": 1
+}'
 
 
+
+
+###########TESTING
 
 #GET SERVICES
 # sudo curl -iX GET \
@@ -190,9 +246,14 @@ sudo curl -iX POST \
 #   'http://localhost:1026/v2/entities/urn:ngsi-ld:TrafficFlowObserved:001?options=keyValues' \
 #   -H 'fiware-service: openiot' \
 #   -H 'fiware-servicepath: /'
-# #check values in orion street lights
+#check values in orion street lights
 # sudo curl -X GET \
 #   'http://localhost:1026/v2/entities/urn:ngsi-ld:Lights:001?options=keyValues' \
+#   -H 'fiware-service: openiot' \
+#   -H 'fiware-servicepath: /'
+#check values in orion parking
+# sudo curl -X GET \
+#   'http://localhost:1026/v2/entities/urn:ngsi-ld:Parking:001?options=keyValues' \
 #   -H 'fiware-service: openiot' \
 #   -H 'fiware-servicepath: /'
  
@@ -204,9 +265,15 @@ sudo curl -iX POST \
 #   -H 'Fiware-Service: openiot' \
 #   -H 'Fiware-ServicePath: /'
 
-# #check values in quantum leap
+# #check lights status in quantum leap
 # sudo curl -X GET \
 #   'http://localhost:8668/v2/entities/urn:ngsi-ld:Lights:001/attrs/state?limit=3' \
+#   -H 'Accept: application/json' \
+#   -H 'Fiware-Service: openiot' \
+#   -H 'Fiware-ServicePath: /'
+#chech parking status in quantum leap
+# sudo curl -X GET \
+#   'http://localhost:8668/v2/entities/urn:ngsi-ld:Parking:001/attrs/parking_spot_status?limit=3' \
 #   -H 'Accept: application/json' \
 #   -H 'Fiware-Service: openiot' \
 #   -H 'Fiware-ServicePath: /'
