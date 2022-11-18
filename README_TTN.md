@@ -107,132 +107,133 @@ Details are available [here](https://blog.squix.org/2017/07/seeeduino-lora-gps-g
 Compiling the OTAA sketch should make the Seeeduino connect to the Gateway and
 send messages to the TTN.
 
-The code below is the comand, already configured, that we use in order to connect.
-
-Two keys, one for each application are generated in order to connect and used as password.
-Remember to remove the security code.
-
-```bash
-curl --location --request POST 'localhost:4042/iot/services' \
-	--header 'fiware-service: openiot' \
-	--header 'fiware-servicePath: /' \
-	--header 'Content-Type: application/json' \
-	--data-raw '{
-	    "services": [
-	        {
-	            "entity_type": "waste",
-	            "apikey": "",
-	            "resource": "8CF957200005727C",
-	            "attributes": [
-	                {
-	                    "object_id": "temperature_1",
-	                    "name": "temperature",
-	                    "type": "Number"
-	                },
-	                {
-	                    "object_id": "relative_humidity_1",
-	                    "name": "relative_humidity",
-	                    "type": "Number"
-	                },
-	                {
-	                    "object_id": "digital_in_1",
-	                    "name": "flame_detected",
-	                    "type": "Number"
-	                },
-	                {
-	                    "object_id": "digital_in_2",
-	                    "name": "distance",
-	                    "type": "Number"
-	                },
-	                {
-	                    "object_id": "accelerometer_1",
-	                    "name": "accelerometerXYZ",
-	                    "type": "StructuredValue"
-	                },
-	                {
-	                    "object_id": "accelerometer_2",
-	                    "name": "gAccellerationXYZ",
-	                    "type": "StructuredValue"
-	                }
-	            ],
-	            "internal_attributes": {
-	                "lorawan": {
-	                    "application_server": {
-	                        "host": "eu1.cloud.thethings.network",
-	                        "username": "oc-diorama-001@ttn",
-	                        "password": "NNSXS.KQRRO4R7BXMHELHQZOMELYUJ2GQUU4S5EI2I6QY.P7FJVWQRODOLCOHOAC2GQMEDO65LINW6YAOBKL6YMUU2K5C4R5MAC0MM3NT01T4L1ANO",
-	                        "provider": "TTN"
-	                    },
-	                    "app_eui": "8CF957200005727C",
-	                    "application_id": "oc-diorama-001@ttn",
-	                    "application_key": "51F58CAC3F5735E3D1F88DD3EADBE9C6",
-	                    "data_model": "application_server"
-	                }
-	            }
-	        },
-	        {
-	            "entity_type": "environment",
-	            "apikey": "",
-	            "resource": "8CF95720000569A6",
-	            "attributes": [
-	                {
-	                    "object_id": "digital_in_1",
-	                    "name": "NO2",
-	                    "type": "Number"
-	                },
-	                {
-	                    "object_id": "digital_in_2",
-	                    "name": "C2H50H",
-	                    "type": "Number"
-	                },
-	                {
-	                    "object_id": "digital_in_3",
-	                    "name": "VOC",
-	                    "type": "Number"
-	                },
-	                {
-	                    "object_id": "digital_in_4",
-	                    "name": "CO",
-	                    "type": "Number"
-	                },
-	                {
-	                    "object_id": "digital_in_5",
-	                    "name": "AirQuality",
-	                    "type": "Number"
-	                },
-	                {
-	                    "object_id": "digital_in_6",
-	                    "name": "Sound",
-	                    "type": "Number"
-	                },
-	                {
-	                    "object_id": "digital_in_7",
-	                    "name": "UVvalue",
-	                    "type": "Number"
-	                }
-	            ],
-	            "internal_attributes": {
-	                "lorawan": {
-	                    "application_server": {
-	                        "host": "eu1.cloud.thethings.network",
-	                        "username": "oc-diorama-002@ttn",
-	                        "password": "NNSXS.WYCQ2VM2FNMXR5DNYYCYAHAQAACG4XA3FTBMRYA.SNSYCYYNLGVM4POZWSQ4VINZOUUPT5OAV3DU436W6AZXPRTLQCZAC0MM3NT01T4L1ANO",
-	                        "provider": "TTN"
-	                    },
-	                    "app_eui": "8CF95720000569A6",
-	                    "application_id": "oc-diorama-002@ttn",
-	                    "application_key": "F80714239C6BC515D1772ED0C38A55F0", 
-	                    "data_model": "application_server"
-	                }
-	            }
-	        }
-	    ]
-	}'
-```
 ## Receive data from TTN into IoT-LoRaWan Agent
 
 In order to receive data from TTN the IoT-Lorawan Agent should
 subscribe to the applications on the TTN platform.
+
+The code below is the comand, already configured, that we use in order to connect.
+
+Two keys, one for each application are generated in order to
+connect and used as password.
+Remember to remove the security code.
+
+```bash
+curl --location --request POST 'localhost:4042/iot/services' \
+--header 'fiware-service: openiot' \
+--header 'fiware-servicePath: /' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "services": [
+    {
+      "entity_type": "waste",
+      "apikey": "",
+      "resource": "8CF957200005727C",
+      "attributes": [
+        {
+          "object_id": "temperature_1",
+          "name": "temperature",
+          "type": "Number"
+        },
+        {
+          "object_id": "relative_humidity_1",
+          "name": "relative_humidity",
+          "type": "Number"
+          },
+          {
+            "object_id": "digital_in_1",
+            "name": "flame_detected",
+            "type": "Number"
+            },
+            {
+              "object_id": "digital_in_2",
+              "name": "distance",
+              "type": "Number"
+            },
+            {
+              "object_id": "accelerometer_1",
+              "name": "accelerometerXYZ",
+              "type": "StructuredValue"
+            },
+            {
+              "object_id": "accelerometer_2",
+              "name": "gAccellerationXYZ",
+              "type": "StructuredValue"
+            }
+          ],
+          "internal_attributes": {
+            "lorawan": {
+              "application_server": {
+                "host": "eu1.cloud.thethings.network",
+                "username": "oc-diorama-001@ttn",
+                "password": "NNSXS.KQRRO4R7BXMHELHQZOMELYUJ2GQUU4S5EI2I6QY.P7FJVWQRODOLCOHOAC2GQMEDO65LINW6YAOBKL6YMUU2K5C4R5MAC0MM3NT01T4L1ANO",
+                "provider": "TTN"
+                },
+                "app_eui": "8CF957200005727C",
+                "application_id": "oc-diorama-001@ttn",
+                "application_key": "51F58CAC3F5735E3D1F88DD3EADBE9C6",
+                "data_model": "application_server"
+            }
+          }
+    },
+    {
+      "entity_type": "environment",
+      "apikey": "",
+      "resource": "8CF95720000569A6",
+      "attributes": [
+        {
+          "object_id": "digital_in_1",
+           "name": "NO2",
+           "type": "Number"
+        },
+        {
+          "object_id": "digital_in_2",
+          "name": "C2H50H",
+          "type": "Number"
+        },
+        {
+          "object_id": "digital_in_3",
+          "name": "VOC",
+          "type": "Number"
+        },
+        {
+          "object_id": "digital_in_4",
+          "name": "CO",
+          "type": "Number"
+        },
+        {
+          "object_id": "digital_in_5",
+          "name": "AirQuality",
+          "type": "Number"
+        },
+        {
+          "object_id": "digital_in_6",
+          "name": "Sound",
+          "type": "Number"
+        },
+        {
+          "object_id": "digital_in_7",
+          "name": "UVvalue",
+          "type": "Number"
+          }
+      ],
+      "internal_attributes": {
+        "lorawan": {
+          "application_server": {
+            "host": "eu1.cloud.thethings.network",
+            "username": "oc-diorama-002@ttn",
+            "password": "NNSXS.WYCQ2VM2FNMXR5DNYYCYAHAQAACG4XA3FTBMRYA.SNSYCYYNLGVM4POZWSQ4VINZOUUPT5OAV3DU436W6AZXPRTLQCZAC0MM3NT01T4L1ANO",
+            "provider": "TTN"
+          },
+          "app_eui": "8CF95720000569A6",
+          "application_id": "oc-diorama-002@ttn",
+          "application_key": "F80714239C6BC515D1772ED0C38A55F0",
+          "data_model": "application_server"
+          }
+      }
+    }
+  ]}'
+```
 
 ## Required libraries for seed-martel-001
 
