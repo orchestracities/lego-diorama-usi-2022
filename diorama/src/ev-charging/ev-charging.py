@@ -221,15 +221,20 @@ def monitor_parking():
             # banned to be removed when using private mqtt broker
             if (grovepi.digitalRead(button_pin) ==
                     1 and parking_spot_status == "occupied"):
-                    pub_button_status("pressed",
-                    button_topic, auth, broker_address, port)
-                    button_pressed = True
+                pub_button_status("pressed",
+                                  button_topic, auth, broker_address, port)
+                button_pressed = True
 
             if (parking_spot_status == "occupied"):
                 red_led_blink()
-            if (button_pressed == True and grovepi.digitalRead(button_pin) != 1):
+            if (button_pressed and grovepi.digitalRead(button_pin) != 1):
                 button_pressed = False
-                pub_button_status("released", button_topic, auth, broker_address, port)
+                pub_button_status(
+                    "released",
+                    button_topic,
+                    auth,
+                    broker_address,
+                    port)
 
             sleep(sleep_time)
         except TypeError:
