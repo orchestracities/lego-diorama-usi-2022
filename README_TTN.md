@@ -112,7 +112,7 @@ The code below is the comand, already configured, that we use in order to connec
 Two keys, one for each application are generated in order to connect and used as password.
 Remember to remove the security code.
 
-```
+```bash
 curl --location --request POST 'localhost:4042/iot/services' \
 	--header 'fiware-service: openiot' \
 	--header 'fiware-servicePath: /' \
