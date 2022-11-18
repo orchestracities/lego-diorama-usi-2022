@@ -9,22 +9,47 @@ sudo curl -iX POST \
    {
      "apikey":      "4jggokgpepnvsb2uv4s40d59ov",
      "entity_type": "TrafficFlowObserved",
-     "resource":    ""
+     "resource":    "",
+     "attributes": [
+          { "object_id": "car_counter", "name": "intensity", "type": "Integer" }
+          ]
    },
    {
      "apikey":      "4jkkokgpepnvsb0sd7q21t53tu",
      "entity_type": "Lights",
-     "resource":    ""
+     "resource":    "",
+     "attributes": [
+          { "object_id": "powerState", "name": "state", "type": "String" }
+        ],
+         "commands": [
+           {
+               "name": "light",
+                "type": "command"
+           }
+         ]
    },
    {
      "apikey":      "parkingApi",
-     "entity_type": "Parking",
-     "resource":    ""
+     "entity_type": "ParkingSpot",
+     "resource":    "",
+     "attributes": [
+          { "object_id": "parking_spot_status", "name": "status", "type": "String" }
+        ]
    },
    {
      "apikey":      "EvAPI",
-     "entity_type": "Ev-Charging",
-     "resource":    ""
+     "entity_type": "EVChargingStation",
+     "resource":    "",
+     "attributes": [
+          { "object_id": "parking_spot_status", "name": "parking_spot_status", "type": "String" },
+          {"object_id": "capacity", "name": "capacity", "type": "Integer" }
+        ],
+         "commands": [
+           {
+               "name": "ev_charging",
+                "type": "command"
+           }
+         ]
    }
  ]
 }'
@@ -43,10 +68,7 @@ sudo curl -iX POST \
         "entity_type": "TrafficFlowObserved",
         "protocol":    "JSON",
         "transport":   "MQTT",
-        "timezone":    "Europe/Berlin",
-        "attributes": [
-          { "object_id": "car_counter", "name": "count", "type": "Integer" }
-        ]
+        "timezone":    "Europe/Berlin"
       },
       {
         "device_id":   "traffic002",
@@ -54,10 +76,7 @@ sudo curl -iX POST \
         "entity_type": "TrafficFlowObserved",
         "protocol":    "JSON",
         "transport":   "MQTT",
-        "timezone":    "Europe/Berlin",
-        "attributes": [
-          { "object_id": "car_counter", "name": "count", "type": "Integer" }
-        ]
+        "timezone":    "Europe/Berlin"
       },
       {
         "device_id":   "lights001",
@@ -65,16 +84,7 @@ sudo curl -iX POST \
         "entity_type": "Lights",
         "protocol":    "JSON",
         "transport":   "MQTT",
-        "timezone":    "Europe/Berlin",
-        "attributes": [
-          { "object_id": "powerState", "name": "state", "type": "String" }
-        ],
-         "commands": [
-           {
-               "name": "light",
-                "type": "command"
-           }
-         ]
+        "timezone":    "Europe/Berlin"
        },
        {
         "device_id":   "lights002",
@@ -82,50 +92,28 @@ sudo curl -iX POST \
         "entity_type": "Lights",
         "protocol":    "JSON",
         "transport":   "MQTT",
-        "timezone":    "Europe/Berlin",
-        "attributes": [
-          { "object_id": "powerState", "name": "state", "type": "String" }
-        ],
-         "commands": [
-           {
-               "type": "command",
-               "name": "light"
-           }
-         ]
+        "timezone":    "Europe/Berlin"
        },
        {
         "device_id":   "parking001",
-        "entity_name": "urn:ngsi-ld:Parking:001",
-        "entity_type": "Parking",
+        "entity_name": "urn:ngsi-ld:ParkingSpot:001",
+        "entity_type": "ParkingSpot",
         "protocol":    "JSON",
         "transport":   "MQTT",
-        "timezone":    "Europe/Berlin",
-        "attributes": [
-          { "object_id": "parking_spot_status", "name": "parking_spot_status", "type": "String" }
-        ]
+        "timezone":    "Europe/Berlin"
       },
       {
         "device_id":   "ev-charging001",
-        "entity_name": "urn:ngsi-ld:Ev-Charging:001",
-        "entity_type": "Ev-Charging",
+        "entity_name": "urn:ngsi-ld:EVChargingStation:001",
+        "entity_type": "EVChargingStation",
         "protocol":    "JSON",
         "transport":   "MQTT",
-        "timezone":    "Europe/Berlin",
-        "attributes": [
-          { "object_id": "parking_spot_status", "name": "parking_spot_status", "type": "String" },
-          {"object_id": "capacity", "name": "capacity", "type": "Integer" }
-        ],
-         "commands": [
-           {
-               "name": "ev_charging",
-                "type": "command"
-           }
-         ]
+        "timezone":    "Europe/Berlin"
        },
        {
         "device_id":   "ev-charging002",
-        "entity_name": "urn:ngsi-ld:Ev-Charging:002",
-        "entity_type": "Ev-Charging",
+        "entity_name": "urn:ngsi-ld:EVChargingStation:002",
+        "entity_type": "EVChargingStation",
         "protocol":    "JSON",
         "transport":   "MQTT",
         "timezone":    "Europe/Berlin",
@@ -153,7 +141,7 @@ sudo curl -iX POST \
     ],
     "condition": {
       "attrs": [
-        "count"
+        "intensity"
       ]
     }
   },
@@ -162,7 +150,7 @@ sudo curl -iX POST \
       "url": "http://quantumleap:8668/v2/notify"
     },
     "attrs": [
-      "count"
+      "intensity"
     ],
     "metadata": ["dateCreated", "dateModified"]
   },
@@ -214,12 +202,12 @@ sudo curl -iX POST \
     "entities": [
       {
         "idPattern": ".*",
-        "type": "Parking"
+        "type": "ParkingSpot"
       }
     ],
     "condition": {
       "attrs": [
-        "parking_spot_status"
+        "status"
       ]
     }
   },
@@ -228,7 +216,7 @@ sudo curl -iX POST \
       "url": "http://quantumleap:8668/v2/notify"
     },
     "attrs": [
-      "parking_spot_status"
+      "status"
     ],
     "metadata": ["dateCreated", "dateModified"]
   },
@@ -247,7 +235,7 @@ sudo curl -iX POST \
     "entities": [
       {
         "idPattern": ".*",
-        "type": "Ev-Charging"
+        "type": "EVChargingStation"
       }
     ],
     "condition": {
@@ -322,19 +310,19 @@ sudo curl -iX POST \
 #   -H 'fiware-servicepath: /'
 #check values in orion parking
 # sudo curl -X GET \
-#   'http://localhost:1026/v2/entities/urn:ngsi-ld:Parking:001?options=keyValues' \
+#   'http://localhost:1026/v2/entities/urn:ngsi-ld:ParkingSpot:001?options=keyValues' \
 #   -H 'fiware-service: openiot' \
 #   -H 'fiware-servicepath: /'
  
 #  ##CHECK ev charging values in orion 
 # sudo curl -X GET \
-#   'http://localhost:1026/v2/entities/urn:ngsi-ld:Ev-Charging:001?options=keyValues' \
+#   'http://localhost:1026/v2/entities/urn:ngsi-ld:EVChargingStation:001?options=keyValues' \
 #   -H 'fiware-service: openiot' \
 #   -H 'fiware-servicepath: /'
 
  ##CHECK ev charging buttons values in orion 
 # sudo curl -X GET \
-#   'http://localhost:1026/v2/entities/urn:ngsi-ld:Ev-Charging:002?' \
+#   'http://localhost:1026/v2/entities/urn:ngsi-ld:EVChargingStation:002?' \
 #   -H 'fiware-service: openiot' \
 #   -H 'fiware-servicepath: /'
  
@@ -343,7 +331,7 @@ sudo curl -iX POST \
 
 # #check values in quantum leap
 # sudo curl -X GET \
-#   'http://localhost:8668/v2/entities/urn:ngsi-ld:TrafficFlowObserved:001/attrs/count?limit=3' \
+#   'http://localhost:8668/v2/entities/urn:ngsi-ld:TrafficFlowObserved:001/attrs/intensity?limit=3' \
 #   -H 'Accept: application/json' \
 #   -H 'Fiware-Service: openiot' \
 #   -H 'Fiware-ServicePath: /'
@@ -356,26 +344,26 @@ sudo curl -iX POST \
 #   -H 'Fiware-ServicePath: /'
 #check parking status in quantum leap
 # sudo curl -X GET \
-#   'http://localhost:8668/v2/entities/urn:ngsi-ld:Parking:001/attrs/parking_spot_status?limit=3' \
+#   'http://localhost:8668/v2/entities/urn:ngsi-ld:ParkingSpot:001/attrs/status?limit=3' \
 #   -H 'Accept: application/json' \
 #   -H 'Fiware-Service: openiot' \
 #   -H 'Fiware-ServicePath: /'
 
 #check ev charging status in quantum leap
 # sudo curl -X GET \
-#   'http://localhost:8668/v2/entities/urn:ngsi-ld:Ev-Charging:001/attrs/parking_spot_status?limit=3' \
+#   'http://localhost:8668/v2/entities/urn:ngsi-ld:EVChargingStation:001/attrs/parking_spot_status?limit=3' \
 #   -H 'Accept: application/json' \
 #   -H 'Fiware-Service: openiot' \
 #   -H 'Fiware-ServicePath: /'
 #check ev charging status in quantum leap
 # sudo curl -X GET \
-#   'http://localhost:8668/v2/entities/urn:ngsi-ld:Ev-Charging:001/attrs/capacity?limit=3' \
+#   'http://localhost:8668/v2/entities/urn:ngsi-ld:EVChargingStation:001/attrs/capacity?limit=3' \
 #   -H 'Accept: application/json' \
 #   -H 'Fiware-Service: openiot' \
 #   -H 'Fiware-ServicePath: /'
 #check ev charging status in quantum leap
 # sudo curl -X GET \
-#   'http://localhost:8668/v2/entities/urn:ngsi-ld:Ev-Charging:002/attrs/status?limit=3' \
+#   'http://localhost:8668/v2/entities/urn:ngsi-ld:EVChargingStation:002/attrs/status?limit=3' \
 #   -H 'Accept: application/json' \
 #   -H 'Fiware-Service: openiot' \
 #   -H 'Fiware-ServicePath: /'
