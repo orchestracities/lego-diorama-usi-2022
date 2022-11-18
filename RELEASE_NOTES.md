@@ -9,6 +9,7 @@
 - Parking Management (#10)
 - Ev Charging (#11)
 - Demo docker stack (#28)
+- connected sensor to ul agent (#15)
 
 ### Bug fixes
 
