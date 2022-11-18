@@ -127,6 +127,7 @@ def pub_button_status(
 
 def red_led_blink():
     global red_blink_iterations
+    global cf
 
     if red_blink_iterations == 5:
         pub_charging_status(0, ps_topic, auth, broker_address, port)
@@ -183,6 +184,8 @@ def pub_parking_status(
 def monitor_parking():
     # initialize parking spot
     parking_spot_status = "free"
+    # button flag
+    button_pressed = False
     set_led(green_l_pin)
     # ultrasonic sensor
     while True:
@@ -218,11 +221,15 @@ def monitor_parking():
             # banned to be removed when using private mqtt broker
             if (grovepi.digitalRead(button_pin) ==
                     1 and parking_spot_status == "occupied"):
-                pub_button_status("pressed",
-                                  button_topic, auth, broker_address, port)
+                    pub_button_status("pressed",
+                    button_topic, auth, broker_address, port)
+                    button_pressed = True
 
             if (parking_spot_status == "occupied"):
                 red_led_blink()
+            if (button_pressed == True and grovepi.digitalRead(button_pin) != 1):
+                button_pressed = False
+                pub_button_status("released", button_topic, auth, broker_address, port)
 
             sleep(sleep_time)
         except TypeError:

@@ -305,6 +305,11 @@ sudo curl -iX POST \
 #   fiware_default efrecon/mqtt-client pub -h mosquitto -m '{ "ev_charging": { "charge":  "start" } }' \
 #   -t "/json/EvAPI/ev-charging001/cmd"
 
+# #send mqtt stop charge message
+# sudo docker run -it --rm --name mqtt-publisher --network \
+#   fiware_default efrecon/mqtt-client pub -h mosquitto -m '{ "ev_charging": { "charge":  "stop" } }' \
+#   -t "/json/EvAPI/ev-charging001/cmd"
+
 # # #check values in orion street sensors
 # sudo curl -X GET \
 #   'http://localhost:1026/v2/entities/urn:ngsi-ld:TrafficFlowObserved:001?options=keyValues' \
@@ -321,9 +326,15 @@ sudo curl -iX POST \
 #   -H 'fiware-service: openiot' \
 #   -H 'fiware-servicepath: /'
  
- ##CHECK ev charging values in orion 
+#  ##CHECK ev charging values in orion 
 # sudo curl -X GET \
 #   'http://localhost:1026/v2/entities/urn:ngsi-ld:Ev-Charging:001?options=keyValues' \
+#   -H 'fiware-service: openiot' \
+#   -H 'fiware-servicepath: /'
+
+ ##CHECK ev charging buttons values in orion 
+# sudo curl -X GET \
+#   'http://localhost:1026/v2/entities/urn:ngsi-ld:Ev-Charging:002?' \
 #   -H 'fiware-service: openiot' \
 #   -H 'fiware-servicepath: /'
  
