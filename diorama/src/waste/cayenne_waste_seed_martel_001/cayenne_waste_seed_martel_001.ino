@@ -177,8 +177,8 @@ void tempHumLoop() {
     // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
 
     if (!dht.readTempAndHumidity(temp_hum_val)) {
-        temperature = temp_hum_val[0];
-        humidity = temp_hum_val[1];
+        temperature = temp_hum_val[1];
+        humidity = temp_hum_val[0];
         if (DEBUG) {
             Serial.println("collected temp/hum");
             Serial.println(temperature);
