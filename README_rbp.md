@@ -259,8 +259,8 @@ our you won't be able to reach the VM from the pi.
     $ sudo mkdir -p /etc/apt/keyrings
     $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
     $ echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
     $ sudo apt-get update
     $ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
     ```
@@ -349,7 +349,6 @@ Required operating system for GrovePi compatibility:
 
 1. On the edge node, check the api server proxy is working:
 
-
     ```bash
     $ curl 127.0.0.1:10550/api/v1/services
     ```
@@ -362,7 +361,7 @@ When the join process is completed, the expected output should be:
 KubeEdge edgecore is running, For logs visit: journalctl -u edgecore.service -xe
 ```
 
-The master node should list both your edge node and your master node (see 
+The master node should list both your edge node and your master node (see
 command in the testing section). If your slave node is not listed:
 
 1. On the slave check the journal:
