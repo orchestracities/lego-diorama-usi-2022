@@ -174,6 +174,14 @@ system which supports snapd)
     $ microk8s kubectl get nodes
     ```
 
+    generate the configuration for kubectl:
+
+    ```bash
+    $ sudo su
+    $ mkdir /root/.kube
+    $ microk8s config > /root/.kube/config
+    ```
+
     (optional) you can assign an alias to avoid conflicts if you
      don't have previous install of kubectl:
 
@@ -184,13 +192,25 @@ system which supports snapd)
 1. Install Kubeedge master node using Keadm
 
     ```bash
-    $ docker run --rm kubeedge/installation-package:v1.12.1 cat /usr/local/bin/keadm > /usr/local/bin/keadm && chmod +x /usr/local/bin/keadm
+    $ docker run --rm kubeedge/installation-package:v1.11.2 cat /usr/local/bin/keadm > /usr/local/bin/keadm && chmod +x /usr/local/bin/keadm
     ```
 
-1. initialize masternode
+1. Initialize master node
 
     ```bash
     $ keadm init --advertise-address="your-pc-ip"
+    ```
+
+1. Complete the configuration enabling the `dynamicController`:
+
+    ```bash
+    $ kubectl -n kubeedge edit cm cloudcore
+
+    modules:
+      ...
+      dynamicController:
+        enable: true
+    ...
     ```
 
 1. Get your master node token (this will be used by the worker
@@ -198,6 +218,51 @@ system which supports snapd)
 
     ```bash
     $ keadm gettoken
+    ```
+
+#### Installing Ubuntu as VM on a Mac M1
+
+To run keadm you need an Ubuntu machine, so it's not enough to have k8s running
+on your Mac. One of the simplest options to run Ubuntu on your Mac, it's
+installing [multipass](https://multipass.run/).
+
+1. As first step, install the client on your Mac:
+
+    ```bash
+    $ brew install multipass
+    ```
+
+1. Launch a new virtual machine (with enough resources), e.g.:
+
+    ```bash
+    $ multipass launch lts --name microk8s --mem 4G --disk 30G --cpus 4 --network en0
+    ```
+
+>>**NOTE**: configure the same network interface you use to reach out the pi,
+our you won't be able to reach the VM from the pi.
+
+1. Open a shell in the new vm:
+
+    ```bash
+    $  multipass shell microk8s
+    ```
+
+1. Set up a password (needed to run `su`):
+
+    ```bash
+    $  sudo passwd ubuntu
+    ```
+
+1. Install docker in the vm:
+
+    ```bash
+    $ sudo mkdir -p /etc/apt/keyrings
+    $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    $ echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    $ sudo apt-get update
+    $ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
     ```
 
 ### Worker Node (RaspberryPi)
@@ -214,7 +279,7 @@ Required operating system for GrovePi compatibility:
 1. Install kubeedge
 
     ```bash
-    $ docker run --rm kubeedge/installation-package:v1.12.1 cat /usr/local/bin/keadm > /usr/local/bin/keadm && chmod +x /usr/local/bin/keadm
+    $ docker run --rm kubeedge/installation-package:v1.11.2 cat /usr/local/bin/keadm > /usr/local/bin/keadm && chmod +x /usr/local/bin/keadm
     ```
 
 1. Create a node and joint the master node
@@ -227,30 +292,86 @@ Required operating system for GrovePi compatibility:
     - `my-cloud-side-token` is the token of the master node see step
       4 in section [Master Node](#Master Node))
 
-1. Output and Fixes
+1. To complete the configuration, enable the `metaServer`:
 
-    - the expected output of the previous point should be:
+    ```bash
+    $ /etc/kubeedge/config/edgecore.yaml
+    modules:
+      ...
+      metaManager:
+        metaServer:
+          enable: true
+    ...
+    ```
 
-        ```bash
-        KubeEdge edgecore is running, For logs visit: journalctl -u edgecore.service -xe
-        ```
+1. Configure the `clusterDNS` and `clusterDomain`:
 
-    - On the Master run the following command:
+    ```bash
+    $ /etc/kubeedge/config/edgecore.yaml
+    modules:
+      ...
+      edged:
+        clusterDNS: 169.254.96.16
+        clusterDomain: cluster.local
+    ...
+    ```
 
-        ```bash
-        $ microk8s kubectl get nodes
-        ```
+1. Add filter labels to Kubernetes API services
 
-        - if your slave node appears in the node list congrats you are done!
-        - if not continue to the next point
+    ```bash
+    $ kubectl label services kubernetes service.edgemesh.kubeedge.io/service-proxy-name=""
+    ```
 
-    - On the slave check the journal:
+1. Install edgemesh:
 
-        ```bash
-        $ journalctl -u edgecore.service -xe
-        ```
+    ```bash
+    $ export psk=$(openssl rand -base64 24)
+    $ microk8s helm3 install edgemesh --namespace kubeedge \
+    --set agent.psk=$psk \
+    --set agent.relayNodes[0].nodeName=microk8s,agent.relayNodes[0].advertiseAddress="{192.168.1.115}" \
+    https://raw.githubusercontent.com/kubeedge/edgemesh/main/build/helm/edgemesh.tgz
+    ```
 
-    - If you get the following error:
+    >>**NOTE**: The `advertiseAddress` is the ip of the master node that the pi
+    can connect to
+.
+
+### Testing that KubeEdge works as expected
+
+1. From the master node, get the list of nodes:
+
+    ```bash
+    $ kubectl get nodes
+    NAME          STATUS   ROLES        AGE   VERSION
+    microk8s      Ready    <none>       13m   v1.25.4
+    raspberrypi   Ready    agent,edge   66s   v1.22.6-kubeedge-v1.11.1
+    ```
+
+1. On the edge node, check the api server proxy is working:
+
+
+    ```bash
+    $ curl 127.0.0.1:10550/api/v1/services
+    ```
+
+### Fixing issues with kubedge
+
+When the join process is completed, the expected output should be:
+
+```bash
+KubeEdge edgecore is running, For logs visit: journalctl -u edgecore.service -xe
+```
+
+The master node should list both your edge node and your master node (see 
+command in the testing section). If your slave node is not listed:
+
+1. On the slave check the journal:
+
+    ```bash
+    $ journalctl -u edgecore.service -xe
+    ```
+
+1. If you get the following error:
 
     ```bash
     Sep 29 11:39:47 pim edgecore[34795]: I0929 11:39:47.701932 34795 server.go:76] Version: v1.11.1
@@ -290,4 +411,4 @@ Required operating system for GrovePi compatibility:
     $ rm /etc/systemd/system/edgecore.service
     ```
 
-    and go back to step 3.
+    and follow again the join procedure.
