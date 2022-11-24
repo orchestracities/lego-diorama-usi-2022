@@ -109,28 +109,6 @@ def pub_charging_status(
         auth=authentication)
     print("published: " + str(charging_status_obj) + " on topic: " + pub_topic)
 
-
-# def pub_button_status(
-#         button_status,
-#         sensor_base_topic,
-#         authentication,
-#         broker_address,
-#         port_number):
-#     # create topic
-#     pub_topic = attr_topic(sensor_base_topic)
-#     # create payload object (attr)
-#     button_status_obj = {'button': button_status}
-#     # convert to json
-#     button_status_obj = json.dumps(button_status_obj)
-#     publish.single(
-#         pub_topic,
-#         payload=button_status_obj,
-#         hostname=broker_address,
-#         port=port_number,
-#         auth=authentication)
-#     print("published: " + str(button_status_obj) + " on topic: " + pub_topic)
-
-
 def red_led_blink():
     global red_blink_iterations
     global cf
@@ -233,9 +211,6 @@ def monitor_parking():
             # banned to be removed when using private mqtt broker
             if (grovepi.digitalRead(button_pin) ==
                     1 and parking_spot_status == "occupied" and cf!=1):
-                # pub_button_status("pressed",
-                #                   button_topic, auth, broker_address, port)
-                # button_pressed = True
                 cf = 1;
                 red_blink_iterations = 5;
                 sleep(0.5);
@@ -245,7 +220,7 @@ def monitor_parking():
                 red_led_blink()
                 if (grovepi.digitalRead(button_pin) == 1):
                     cf = 0
-                    
+
             sleep(sleep_time)
         except TypeError:
             print("Error")
