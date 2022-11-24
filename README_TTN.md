@@ -159,6 +159,11 @@ curl --location --request POST 'localhost:4042/iot/services' \
               "object_id": "accelerometer_2",
               "name": "gAccellerationXYZ",
               "type": "StructuredValue"
+            },
+            {
+              "object_id": "digital_in_3",
+              "name": "status",
+              "type": "Number"
             }
           ],
           "internal_attributes": {

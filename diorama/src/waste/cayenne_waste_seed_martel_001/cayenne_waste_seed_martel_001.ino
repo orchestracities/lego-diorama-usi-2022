@@ -31,8 +31,16 @@ DHT dht(DHTPIN, DHTTYPE);
 
 Ultrasonic ultrasonic(3); // Distance Sensor
 
-// unsigned char data[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0xA,};
 char buffer[256];
+
+// Waste Container Statuses
+#define ST_OK 0
+#define ST_LID_OPEN 1
+#define ST_DROPPED 2
+#define ST_BURNING 5
+
+//status
+int status = ST_OK;
 
 // MEASURE VALUES
 
@@ -86,6 +94,9 @@ void loop(void) {
 
     lpp.addAccelerometer(1, x, y, z);
     lpp.addAccelerometer(2, ax, ay, az);
+
+    getStatus();
+    lpp.addDigitalInput(3,status);
 
     bool msg1 = lora.transferPacketWithConfirmed(lpp.getBuffer(), lpp.getSize(), 5);
     delay(4000);
@@ -202,4 +213,26 @@ void distanceLoop() {
         Serial.print("Distance: ");
         Serial.println(RangeInCentimeters);
     }
+}
+
+void getStatus(){
+  if(isFlameDetected()){
+    status = ST_BURNING;
+  } else {
+    if ((-0.20 < ax && ax < 0.20) && (-0.20 < ay && ay < 0.20) && (-1.20 < az && az < -0.80)) {
+      status = ST_OK;
+    }
+    else if ((-1.20 < ax && ax < -0.80) && (-0.20 < ay && ay < 0.20) && (-0.20 < az && az < 0.20)) {
+      status = ST_LID_OPEN;
+    }
+    else {
+      status = ST_DROPPED;
+    }
+  }
+
+  if(DEBUG){
+      Serial.println("Status: ");
+      Serial.println(status);
+  } 
+  
 }
