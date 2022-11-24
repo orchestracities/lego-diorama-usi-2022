@@ -108,6 +108,8 @@ loraAgentSubscription() {
 	--data-raw '{
 	    "services": [
 	        {
+				"device_id": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
+     			"entity_name": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
 	            "entity_type": "WasteContainer",
 	            "apikey": "",
 	            "resource": "8CF957200005727C",
@@ -159,6 +161,8 @@ loraAgentSubscription() {
 	            }
 	        },
 	        {
+				"device_id": "urn:ngsi-ld:environment:martel-ttn-002",
+      			"entity_name": "urn:ngsi-ld:environment:martel-ttn-002",
 	            "entity_type": "environment",
 	            "apikey": "",
 	            "resource": "8CF95720000569A6",
@@ -235,7 +239,7 @@ case "${command}" in
 		${dockerCmd} up -d --remove-orphans
 		waitForMongo
 		addDatabaseIndex
-		# waitForIoTAgent
+		waitForIoTAgent
 		waitForOrion
 		displayServices
 		loraAgentSubscription
@@ -256,5 +260,3 @@ case "${command}" in
 		exit 127;
 		;;
 esac
-
-
