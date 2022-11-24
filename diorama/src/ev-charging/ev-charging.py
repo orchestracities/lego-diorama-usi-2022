@@ -245,16 +245,7 @@ def monitor_parking():
                 red_led_blink()
                 if (grovepi.digitalRead(button_pin) == 1):
                     cf = 0
-
-            # if (button_pressed and grovepi.digitalRead(button_pin) != 1):
-            #     button_pressed = False
-                # pub_button_status(
-                #     "released",
-                #     button_topic,
-                #     auth,
-                #     broker_address,
-                #     port)
-
+                    
             sleep(sleep_time)
         except TypeError:
             print("Error")
