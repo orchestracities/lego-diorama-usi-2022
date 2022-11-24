@@ -126,7 +126,7 @@ curl --location --request POST 'localhost:4042/iot/services' \
 --data-raw '{
   "services": [
     {
-      "entity_type": "waste",
+      "entity_type": "WasteContainer",
       "apikey": "",
       "resource": "8CF957200005727C",
       "attributes": [
@@ -137,12 +137,12 @@ curl --location --request POST 'localhost:4042/iot/services' \
         },
         {
           "object_id": "relative_humidity_1",
-          "name": "relative_humidity",
+          "name": "relativeHumidity",
           "type": "Number"
           },
           {
             "object_id": "digital_in_1",
-            "name": "flame_detected",
+            "name": "flameDetected",
             "type": "Number"
             },
             {
@@ -203,12 +203,12 @@ curl --location --request POST 'localhost:4042/iot/services' \
         },
         {
           "object_id": "digital_in_5",
-          "name": "AirQuality",
+          "name": "airQuality",
           "type": "Number"
         },
         {
           "object_id": "digital_in_6",
-          "name": "Sound",
+          "name": "sound",
           "type": "Number"
         },
         {

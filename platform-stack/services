@@ -98,7 +98,7 @@ waitForIoTAgent () {
 	done
 }
 
-agentSubscription() {
+loraAgentSubscription() {
 	echo -e "\nSubscribing to mqtt\n"
 
 	curl --location --request POST 'localhost:4042/iot/services' \
@@ -108,7 +108,7 @@ agentSubscription() {
 	--data-raw '{
 	    "services": [
 	        {
-	            "entity_type": "waste",
+	            "entity_type": "WasteContainer",
 	            "apikey": "",
 	            "resource": "8CF957200005727C",
 	            "attributes": [
@@ -119,12 +119,12 @@ agentSubscription() {
 	                },
 	                {
 	                    "object_id": "relative_humidity_1",
-	                    "name": "relative_humidity",
+	                    "name": "relativeHumidity",
 	                    "type": "Number"
 	                },
 	                {
 	                    "object_id": "digital_in_1",
-	                    "name": "flame_detected",
+	                    "name": "flameDetected",
 	                    "type": "Number"
 	                },
 	                {
@@ -185,12 +185,12 @@ agentSubscription() {
 	                },
 	                {
 	                    "object_id": "digital_in_5",
-	                    "name": "AirQuality",
+	                    "name": "airQuality",
 	                    "type": "Number"
 	                },
 	                {
 	                    "object_id": "digital_in_6",
-	                    "name": "Sound",
+	                    "name": "sound",
 	                    "type": "Number"
 	                },
 	                {
@@ -238,7 +238,7 @@ case "${command}" in
 		# waitForIoTAgent
 		waitForOrion
 		displayServices
-		agentSubscription
+		loraAgentSubscription
 		;;
 	"stop")
 		export $(cat .env | grep "#" -v)
