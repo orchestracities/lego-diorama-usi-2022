@@ -171,8 +171,6 @@ def monitor_parking():
     global red_blink_iterations
     # initialize parking spot
     parking_spot_status = "free"
-    # button flag
-    button_pressed = False
     set_led(green_l_pin)
     # ultrasonic sensor
     while True:
