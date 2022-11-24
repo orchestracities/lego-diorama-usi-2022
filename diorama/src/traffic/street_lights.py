@@ -76,7 +76,7 @@ def set_lights(setter, pins):
 
 def light_cmd_ack(client, msg, payload, status):
     # prep ack object
-    payload['light']['switch'] = status
+    payload['power']['switch'] = status
     # send ack with json
     topic = ack_topic(str(msg.topic))
     print("sending ack to topic:" + str(topic))
@@ -86,6 +86,10 @@ def light_cmd_ack(client, msg, payload, status):
 def update_light_status_attribute(client, msg, state):
     topic = attr_topic(str(msg.topic)[:-4])
     print("sending status update to topic: " + str(topic))
+    print("published : " + attr_topic(
+        str(msg.topic)[:-4]))
+    print("object : " + str(json.dumps({"powerState": state})))
+
     client.publish(attr_topic(
         str(msg.topic)[:-4]), json.dumps({"powerState": state}))
 
@@ -95,7 +99,7 @@ def update_light_status_attribute(client, msg, state):
 def light_cmd_exe(msg, client, light_pin):
     payload = json.loads(str(msg.payload))
     try:
-        if payload['light']['switch'] == "on":
+        if payload['power']['switch'] == "on":
             print("turning on lights ...")
             if (set_lights("on", light_pin)):
                 light_cmd_ack(client, msg, payload, "ok")
@@ -104,7 +108,7 @@ def light_cmd_exe(msg, client, light_pin):
             else:
                 light_cmd_ack(client, msg, payload,
                               "error: failed to turn on lights")
-        elif payload['light']['switch'] == "off":
+        elif payload['power']['switch'] == "off":
             print("turning off lights ...")
             if (set_lights("off", light_pin)):
                 light_cmd_ack(client, msg, payload, "ok")

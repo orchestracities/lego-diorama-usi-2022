@@ -16,14 +16,14 @@ sudo curl -iX POST \
    },
    {
      "apikey":      "4jkkokgpepnvsb0sd7q21t53tu",
-     "entity_type": "Lights",
+     "entity_type": "StreetLight",
      "resource":    "",
      "attributes": [
           { "object_id": "powerState", "name": "state", "type": "String" }
         ],
          "commands": [
            {
-               "name": "light",
+               "name": "power",
                 "type": "command"
            }
          ]
@@ -46,7 +46,7 @@ sudo curl -iX POST \
         ],
          "commands": [
            {
-               "name": "ev_charging",
+               "name": "charging",
                 "type": "command"
            }
          ]
@@ -79,17 +79,17 @@ sudo curl -iX POST \
         "timezone":    "Europe/Berlin"
       },
       {
-        "device_id":   "lights001",
-        "entity_name": "urn:ngsi-ld:Lights:001",
-        "entity_type": "Lights",
+        "device_id":   "StreetLight001",
+        "entity_name": "urn:ngsi-ld:StreetLight:001",
+        "entity_type": "StreetLight",
         "protocol":    "JSON",
         "transport":   "MQTT",
         "timezone":    "Europe/Berlin"
        },
        {
-        "device_id":   "lights002",
-        "entity_name": "urn:ngsi-ld:Lights:002",
-        "entity_type": "Lights",
+        "device_id":   "StreetLight002",
+        "entity_name": "urn:ngsi-ld:StreetLight:002",
+        "entity_type": "StreetLight",
         "protocol":    "JSON",
         "transport":   "MQTT",
         "timezone":    "Europe/Berlin"
@@ -109,18 +109,7 @@ sudo curl -iX POST \
         "protocol":    "JSON",
         "transport":   "MQTT",
         "timezone":    "Europe/Berlin"
-       },
-       {
-        "device_id":   "ev-charging002",
-        "entity_name": "urn:ngsi-ld:EVChargingStation:002",
-        "entity_type": "EVChargingStation",
-        "protocol":    "JSON",
-        "transport":   "MQTT",
-        "timezone":    "Europe/Berlin",
-        "attributes": [
-          { "object_id": "button", "name": "status", "type": "String" }
-        ]
-       }
+      }
     ]
 }'
 
@@ -157,7 +146,7 @@ sudo curl -iX POST \
   "throttling": 1
 }'
 
-#lights orion subscription
+#StreetLight orion subscription
 sudo curl -iX POST \
   'http://localhost:1026/v2/subscriptions/' \
   -H 'Content-Type: application/json' \
@@ -169,7 +158,7 @@ sudo curl -iX POST \
     "entities": [
       {
         "idPattern": ".*",
-        "type": "Lights"
+        "type": "StreetLight"
       }
     ],
     "condition": {
@@ -281,12 +270,12 @@ sudo curl -iX POST \
 # ##state change 
 # sudo docker run -it --rm --name mqtt-publisher --network \
 #   fiware_default efrecon/mqtt-client pub -h mosquitto -m '{"state" : "on"}}' \
-#   -t "/json/4jkkokgpepnvsb0sd7q21t53tu/lights001/attrs"
+#   -t "/json/4jkkokgpepnvsb0sd7q21t53tu/StreetLight001/attrs"
 
-# ##send mqtt lights command
+# ##send mqtt StreetLight command
 # sudo docker run -it --rm --name mqtt-publisher --network \
-#   fiware_default efrecon/mqtt-client pub -h mosquitto -m '{"light": {"switch" : "on"}}' \
-#   -t "/json/4jkkokgpepnvsb0sd7q21t53tu/lights001/cmd"
+#   fiware_default efrecon/mqtt-client pub -h mosquitto -m '{"power": {"switch" : "on"}}' \
+#   -t "/json/4jkkokgpepnvsb0sd7q21t53tu/StreetLight001/cmd"
 
 # #send mqtt charge start message
 # sudo docker run -it --rm --name mqtt-publisher --network \
@@ -303,9 +292,9 @@ sudo curl -iX POST \
 #   'http://localhost:1026/v2/entities/urn:ngsi-ld:TrafficFlowObserved:001?options=keyValues' \
 #   -H 'fiware-service: openiot' \
 #   -H 'fiware-servicepath: /'
-#check values in orion street lights
+#check values in orion street StreetLight
 # sudo curl -X GET \
-#   'http://localhost:1026/v2/entities/urn:ngsi-ld:Lights:001?options=keyValues' \
+#   'http://localhost:1026/v2/entities/urn:ngsi-ld:StreetLight:001?options=keyValues' \
 #   -H 'fiware-service: openiot' \
 #   -H 'fiware-servicepath: /'
 #check values in orion parking
@@ -336,9 +325,9 @@ sudo curl -iX POST \
 #   -H 'Fiware-Service: openiot' \
 #   -H 'Fiware-ServicePath: /'
 
-# #check lights status in quantum leap
+# #check StreetLight status in quantum leap
 # sudo curl -X GET \
-#   'http://localhost:8668/v2/entities/urn:ngsi-ld:Lights:001/attrs/state?limit=3' \
+#   'http://localhost:8668/v2/entities/urn:ngsi-ld:StreetLight:001/attrs/state?limit=3' \
 #   -H 'Accept: application/json' \
 #   -H 'Fiware-Service: openiot' \
 #   -H 'Fiware-ServicePath: /'
