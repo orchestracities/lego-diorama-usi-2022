@@ -104,25 +104,25 @@ def pub_charging_status(
     print("published: " + str(charging_status_obj) + " on topic: " + pub_topic)
 
 
-def pub_button_status(
-        button_status,
-        sensor_base_topic,
-        authentication,
-        broker_address,
-        port_number):
-    # create topic
-    pub_topic = attr_topic(sensor_base_topic)
-    # create payload object (attr)
-    button_status_obj = {'button': button_status}
-    # convert to json
-    button_status_obj = json.dumps(button_status_obj)
-    publish.single(
-        pub_topic,
-        payload=button_status_obj,
-        hostname=broker_address,
-        port=port_number,
-        auth=authentication)
-    print("published: " + str(button_status_obj) + " on topic: " + pub_topic)
+# def pub_button_status(
+#         button_status,
+#         sensor_base_topic,
+#         authentication,
+#         broker_address,
+#         port_number):
+#     # create topic
+#     pub_topic = attr_topic(sensor_base_topic)
+#     # create payload object (attr)
+#     button_status_obj = {'button': button_status}
+#     # convert to json
+#     button_status_obj = json.dumps(button_status_obj)
+#     publish.single(
+#         pub_topic,
+#         payload=button_status_obj,
+#         hostname=broker_address,
+#         port=port_number,
+#         auth=authentication)
+#     print("published: " + str(button_status_obj) + " on topic: " + pub_topic)
 
 
 def red_led_blink():
@@ -131,6 +131,9 @@ def red_led_blink():
 
     if red_blink_iterations == 5:
         pub_charging_status(0, ps_topic, auth, broker_address, port)
+    
+    if (grovepi.digitalRead(button_pin) == 1):
+                    cf = 0
 
     if (cf == 1) and (red_blink_iterations >= 0):
         # Blink the LED
@@ -153,6 +156,7 @@ def red_led_blink():
     # if charge intrerrupt:
     else:
         # grovepi.digitalWrite(red_l_pin, 1)
+        cf = 0;
         print("not charging")
 
 
@@ -182,6 +186,8 @@ def pub_parking_status(
 
 
 def monitor_parking():
+    global cf
+    global red_blink_iterations
     # initialize parking spot
     parking_spot_status = "free"
     # button flag
@@ -220,21 +226,28 @@ def monitor_parking():
             # used to limit requests to public mqtt broker to avoid getting
             # banned to be removed when using private mqtt broker
             if (grovepi.digitalRead(button_pin) ==
-                    1 and parking_spot_status == "occupied"):
-                pub_button_status("pressed",
-                                  button_topic, auth, broker_address, port)
-                button_pressed = True
-
-            if (parking_spot_status == "occupied"):
+                    1 and parking_spot_status == "occupied" and cf!=1):
+                # pub_button_status("pressed",
+                #                   button_topic, auth, broker_address, port)
+                # button_pressed = True
+                cf = 1;
+                red_blink_iterations = 5;
+                sleep(0.5);
                 red_led_blink()
-            if (button_pressed and grovepi.digitalRead(button_pin) != 1):
-                button_pressed = False
-                pub_button_status(
-                    "released",
-                    button_topic,
-                    auth,
-                    broker_address,
-                    port)
+
+            if (cf == 1):
+                red_led_blink()
+                if (grovepi.digitalRead(button_pin) == 1):
+                    cf = 0
+
+            # if (button_pressed and grovepi.digitalRead(button_pin) != 1):
+            #     button_pressed = False
+                # pub_button_status(
+                #     "released",
+                #     button_topic,
+                #     auth,
+                #     broker_address,
+                #     port)
 
             sleep(sleep_time)
         except TypeError:
