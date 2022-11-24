@@ -5,9 +5,8 @@
 // Dist Sensor on D3
 // Accelerometer on I2C
 
-#include <LoRaWan.h>
-
 #include <CayenneLPP.h>
+#include <LoRaWan.h>
 CayenneLPP lpp(100);
 
 #include <Wire.h>
@@ -39,8 +38,11 @@ char buffer[256];
 #define ST_DROPPED 2
 #define ST_BURNING 5
 
-//status
+// status
 int status = ST_OK;
+
+// filling level
+const int FL_HEIGHT_CM = 10;
 
 // MEASURE VALUES
 
@@ -52,7 +54,7 @@ int8_t x = 0, y = 0, z = 0;
 float ax = 0, ay = 0, az = 0;
 
 // DistanceSensor
-int RangeInCentimeters = 0;
+float fillingLevel = 0;
 
 void setup(void) {
     SerialUSB.begin(115200);
@@ -86,8 +88,7 @@ void loop(void) {
 
     // DistanceSensor
     distanceLoop();
-
-    lpp.addDigitalInput(2, RangeInCentimeters);
+    lpp.addDigitalInput(2, fillingLevel);
 
     // Accelerometer
     accelerometerLoop();
@@ -96,7 +97,7 @@ void loop(void) {
     lpp.addAccelerometer(2, ax, ay, az);
 
     getStatus();
-    lpp.addDigitalInput(3,status);
+    lpp.addDigitalInput(3, status);
 
     bool msg1 = lora.transferPacketWithConfirmed(lpp.getBuffer(), lpp.getSize(), 5);
     delay(4000);
@@ -140,7 +141,10 @@ void lorawanConfig() {
 
 // FLAME SENSOR
 bool isFlameDetected() {
-    if (DEBUG) Serial.println(!digitalRead(FLAME_SENSOR));
+    if (DEBUG){
+      Serial.println("Flame:");
+      Serial.println(!digitalRead(FLAME_SENSOR));
+    }
     return !digitalRead(FLAME_SENSOR);
 }
 
@@ -208,31 +212,29 @@ void tempHumLoop() {
 
 // DISTANCE SENSOR
 void distanceLoop() {
-    RangeInCentimeters = (int)ultrasonic.MeasureInCentimeters(); // two measurements should keep an interval
+    fillingLevel = (FL_HEIGHT_CM - (int)ultrasonic.MeasureInCentimeters())/(float)FL_HEIGHT_CM;
+    // RangeInCentimeters = (int)ultrasonic.MeasureInCentimeters(); // two measurements should keep an interval
     if (DEBUG) {
-        Serial.print("Distance: ");
-        Serial.println(RangeInCentimeters);
+        Serial.println("Filling percentage: ");
+        Serial.println(fillingLevel);
     }
 }
 
-void getStatus(){
-  if(isFlameDetected()){
-    status = ST_BURNING;
-  } else {
-    if ((-0.20 < ax && ax < 0.20) && (-0.20 < ay && ay < 0.20) && (-1.20 < az && az < -0.80)) {
-      status = ST_OK;
+void getStatus() {
+    if (isFlameDetected()) {
+        status = ST_BURNING;
+    } else {
+        if ((-0.20 < ax && ax < 0.20) && (-0.20 < ay && ay < 0.20) && (-1.20 < az && az < -0.80)) {
+            status = ST_OK;
+        } else if ((-1.20 < ax && ax < -0.80) && (-0.20 < ay && ay < 0.20) && (-0.20 < az && az < 0.20)) {
+            status = ST_LID_OPEN;
+        } else {
+            status = ST_DROPPED;
+        }
     }
-    else if ((-1.20 < ax && ax < -0.80) && (-0.20 < ay && ay < 0.20) && (-0.20 < az && az < 0.20)) {
-      status = ST_LID_OPEN;
-    }
-    else {
-      status = ST_DROPPED;
-    }
-  }
 
-  if(DEBUG){
-      Serial.println("Status: ");
-      Serial.println(status);
-  } 
-  
+    if (DEBUG) {
+        Serial.println("Status: ");
+        Serial.println(status);
+    }
 }

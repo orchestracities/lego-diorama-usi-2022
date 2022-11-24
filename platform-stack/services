@@ -131,7 +131,7 @@ loraAgentSubscription() {
 	                },
 	                {
 	                    "object_id": "digital_in_2",
-	                    "name": "distance",
+	                    "name": "fillingLevelPercentage",
 	                    "type": "Number"
 	                },
 	                {

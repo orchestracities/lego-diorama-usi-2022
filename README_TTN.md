@@ -147,7 +147,7 @@ curl --location --request POST 'localhost:4042/iot/services' \
             },
             {
               "object_id": "digital_in_2",
-              "name": "distance",
+              "name": "fillingLevelPercentage",
               "type": "Number"
             },
             {
