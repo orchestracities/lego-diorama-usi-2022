@@ -39,7 +39,6 @@ if username is not None and password is not None:
         auth = {'username': username, 'password': password}
 # topic base config
 protocol = str(config['connection']['protocol'])
-service_api_key = str(config['ev_parking']['ev_service_api_key'])
 ev_api_key = str(config['ev_parking']['ev_service_api_key'])
 
 # proximity sensor setup
@@ -65,8 +64,6 @@ green_l_id = str(config['ev_parking']['green_l_id'])
 
 # button
 button_pin = int(config['ev_parking']['button_pin'])
-button_id = str(config['ev_parking']['button_id'])
-button_topic = topic_constructor(protocol, service_api_key, button_id)
 grovepi.pinMode(button_pin, "INPUT")
 
 # charging flag 0 no charging 1 charging on going
