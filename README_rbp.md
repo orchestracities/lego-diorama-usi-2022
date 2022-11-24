@@ -213,6 +213,25 @@ system which supports snapd)
     ...
     ```
 
+1. Add filter labels to Kubernetes API services
+
+    ```bash
+    $ kubectl label services kubernetes service.edgemesh.kubeedge.io/service-proxy-name=""
+    ```
+
+1. Install edgemesh:
+
+    ```bash
+    $ export psk=$(openssl rand -base64 24)
+    $ microk8s helm3 install edgemesh --namespace kubeedge \
+    --set agent.psk=$psk \
+    --set agent.relayNodes[0].nodeName=microk8s,agent.relayNodes[0].advertiseAddress="{192.168.1.115}" \
+    https://raw.githubusercontent.com/kubeedge/edgemesh/main/build/helm/edgemesh.tgz
+    ```
+
+    >>**NOTE**: The `advertiseAddress` is the ip of the master node that the pi
+    can connect to.
+
 1. Get your master node token (this will be used by the worker
   node to connect to the master node)
 
@@ -315,26 +334,6 @@ Required operating system for GrovePi compatibility:
         clusterDomain: cluster.local
     ...
     ```
-
-1. Add filter labels to Kubernetes API services
-
-    ```bash
-    $ kubectl label services kubernetes service.edgemesh.kubeedge.io/service-proxy-name=""
-    ```
-
-1. Install edgemesh:
-
-    ```bash
-    $ export psk=$(openssl rand -base64 24)
-    $ microk8s helm3 install edgemesh --namespace kubeedge \
-    --set agent.psk=$psk \
-    --set agent.relayNodes[0].nodeName=microk8s,agent.relayNodes[0].advertiseAddress="{192.168.1.115}" \
-    https://raw.githubusercontent.com/kubeedge/edgemesh/main/build/helm/edgemesh.tgz
-    ```
-
-    >>**NOTE**: The `advertiseAddress` is the ip of the master node that the pi
-    can connect to
-.
 
 ### Testing that KubeEdge works as expected
 
