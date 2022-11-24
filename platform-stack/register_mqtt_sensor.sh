@@ -1,4 +1,4 @@
-#Provision a service groups:TrafficFlowObserved, StreetLight,  ParkingSpot, EVChargingStation
+#Provision service groups: TrafficFlowObserved, StreetLight,  ParkingSpot, EVChargingStation
 sudo curl -iX POST \
   'http://localhost:4041/iot/services' \
   -H 'Content-Type: application/json' \
