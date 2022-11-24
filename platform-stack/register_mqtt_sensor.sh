@@ -1,4 +1,4 @@
-#Provision a service group:
+#Provision a service group:EVChargingStation
 sudo curl -iX POST \
   'http://localhost:4041/iot/services' \
   -H 'Content-Type: application/json' \
@@ -95,7 +95,7 @@ sudo curl -iX POST \
         "timezone":    "Europe/Berlin"
        },
        {
-        "device_id":   "parking001",
+        "device_id":   "ParkingSpot001",
         "entity_name": "urn:ngsi-ld:ParkingSpot:001",
         "entity_type": "ParkingSpot",
         "protocol":    "JSON",
@@ -103,7 +103,7 @@ sudo curl -iX POST \
         "timezone":    "Europe/Berlin"
       },
       {
-        "device_id":   "ev-charging001",
+        "device_id":   "EVChargingStation001",
         "entity_name": "urn:ngsi-ld:EVChargingStation:001",
         "entity_type": "EVChargingStation",
         "protocol":    "JSON",
@@ -179,14 +179,14 @@ sudo curl -iX POST \
   "throttling": 1
 }'
 
-#parking orion subscription
+#ParkingSpot orion subscription
 sudo curl -iX POST \
   'http://localhost:1026/v2/subscriptions/' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
   -d '{
-  "description": "Notify QuantumLeap of parking spot status changes",
+  "description": "Notify QuantumLeap of ParkingSpot status changes",
   "subject": {
     "entities": [
       {
@@ -212,7 +212,7 @@ sudo curl -iX POST \
   "throttling": 1
 }'
 
-##ecv-charging orion subscription
+##ev-charging orion subscription
 sudo curl -iX POST \
   'http://localhost:1026/v2/subscriptions/' \
   -H 'Content-Type: application/json' \
@@ -279,13 +279,13 @@ sudo curl -iX POST \
 
 # #send mqtt charge start message
 # sudo docker run -it --rm --name mqtt-publisher --network \
-#   fiware_default efrecon/mqtt-client pub -h mosquitto -m '{ "ev_charging": { "charge":  "start" } }' \
-#   -t "/json/EvAPI/ev-charging001/cmd"
+#   fiware_default efrecon/mqtt-client pub -h mosquitto -m '{ "charging": { "charge":  "start" } }' \
+#   -t "/json/EvAPI/EVChargingStation001/cmd"
 
 # #send mqtt stop charge message
 # sudo docker run -it --rm --name mqtt-publisher --network \
-#   fiware_default efrecon/mqtt-client pub -h mosquitto -m '{ "ev_charging": { "charge":  "stop" } }' \
-#   -t "/json/EvAPI/ev-charging001/cmd"
+#   fiware_default efrecon/mqtt-client pub -h mosquitto -m '{ "charging": { "charge":  "stop" } }' \
+#   -t "/json/EvAPI/EVChargingStation001/cmd"
 
 # # #check values in orion street sensors
 # sudo curl -X GET \
