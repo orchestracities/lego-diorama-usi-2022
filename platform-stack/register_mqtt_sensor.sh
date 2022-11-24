@@ -41,7 +41,6 @@ sudo curl -iX POST \
      "entity_type": "EVChargingStation",
      "resource":    "",
      "attributes": [
-          { "object_id": "parking_spot_status", "name": "parking_spot_status", "type": "String" },
           {"object_id": "capacity", "name": "capacity", "type": "Integer" }
         ],
          "commands": [
@@ -97,6 +96,14 @@ sudo curl -iX POST \
        {
         "device_id":   "ParkingSpot001",
         "entity_name": "urn:ngsi-ld:ParkingSpot:001",
+        "entity_type": "ParkingSpot",
+        "protocol":    "JSON",
+        "transport":   "MQTT",
+        "timezone":    "Europe/Berlin"
+      },
+      {
+        "device_id":   "ParkingSpot002",
+        "entity_name": "urn:ngsi-ld:ParkingSpot:002",
         "entity_type": "ParkingSpot",
         "protocol":    "JSON",
         "transport":   "MQTT",
@@ -229,7 +236,7 @@ sudo curl -iX POST \
     ],
     "condition": {
       "attrs": [
-        "parking_spot_status", "capacity","status"
+        "capacity","status"
       ]
     }
   },
@@ -238,7 +245,7 @@ sudo curl -iX POST \
       "url": "http://quantumleap:8668/v2/notify"
     },
     "attrs": [
-      "parking_spot_status","capacity","status"
+      "capacity","status"
     ],
     "metadata": ["dateCreated", "dateModified"]
   },
@@ -309,11 +316,7 @@ sudo curl -iX POST \
 #   -H 'fiware-service: openiot' \
 #   -H 'fiware-servicepath: /'
 
- ##CHECK ev charging buttons values in orion 
-# sudo curl -X GET \
-#   'http://localhost:1026/v2/entities/urn:ngsi-ld:EVChargingStation:002?' \
-#   -H 'fiware-service: openiot' \
-#   -H 'fiware-servicepath: /'
+
  
 
 
@@ -338,21 +341,11 @@ sudo curl -iX POST \
 #   -H 'Fiware-Service: openiot' \
 #   -H 'Fiware-ServicePath: /'
 
-#check ev charging status in quantum leap
-# sudo curl -X GET \
-#   'http://localhost:8668/v2/entities/urn:ngsi-ld:EVChargingStation:001/attrs/parking_spot_status?limit=3' \
-#   -H 'Accept: application/json' \
-#   -H 'Fiware-Service: openiot' \
-#   -H 'Fiware-ServicePath: /'
+
 #check ev charging status in quantum leap
 # sudo curl -X GET \
 #   'http://localhost:8668/v2/entities/urn:ngsi-ld:EVChargingStation:001/attrs/capacity?limit=3' \
 #   -H 'Accept: application/json' \
 #   -H 'Fiware-Service: openiot' \
 #   -H 'Fiware-ServicePath: /'
-#check ev charging status in quantum leap
-# sudo curl -X GET \
-#   'http://localhost:8668/v2/entities/urn:ngsi-ld:EVChargingStation:002/attrs/status?limit=3' \
-#   -H 'Accept: application/json' \
-#   -H 'Fiware-Service: openiot' \
-#   -H 'Fiware-ServicePath: /'
+

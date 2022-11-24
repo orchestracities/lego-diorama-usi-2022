@@ -40,11 +40,17 @@ if username is not None and password is not None:
 # topic base config
 protocol = str(config['connection']['protocol'])
 service_api_key = str(config['ev_parking']['ev_service_api_key'])
+ev_api_key = str(config['ev_parking']['ev_service_api_key'])
 
 # proximity sensor setup
 ps_pin = int(config['ev_parking']['ps_pin'])
 ps_id = str(config['ev_parking']['ps_id'])
-ps_topic = topic_constructor(protocol, service_api_key, ps_id)
+ps_api_key = str(config['parking']['parking_service_api_key'])
+ps_topic = topic_constructor(protocol, ps_api_key, ps_id)
+
+#ev charging setup
+ev_id = str(config['ev_parking']['ev_id'])
+ev_topic = topic_constructor(protocol, ev_api_key, ev_id)
 # distance from which the car is  detected
 car_detection_distance = int(config['ev_parking']['car_detection_distance'])
 # sleep time
@@ -130,7 +136,7 @@ def red_led_blink():
     global cf
 
     if red_blink_iterations == 5:
-        pub_charging_status(0, ps_topic, auth, broker_address, port)
+        pub_charging_status(0, ev_topic, auth, broker_address, port)
     
     if (grovepi.digitalRead(button_pin) == 1):
                     cf = 0
@@ -149,7 +155,7 @@ def red_led_blink():
 
         # charging status complete
         if (red_blink_iterations == 0):
-            pub_charging_status(1, ps_topic, auth, broker_address, port)
+            pub_charging_status(1, ev_topic, auth, broker_address, port)
             grovepi.digitalWrite(red_l_pin, 1)
 
         red_blink_iterations = red_blink_iterations - 1
@@ -258,7 +264,7 @@ def monitor_parking():
 
 def ps_cmd_ack(client, msg, payload, status):
     # prep ack object
-    payload['ev_charging']['charge'] = status
+    payload['charging']['charge'] = status
     # send ack with json
     topic = ack_topic(str(msg.topic))
     print("sending ack to topic:" + str(topic))
@@ -273,7 +279,7 @@ def ps_cmd_exe(msg, client, ps_pin):
 
     try:
         # if message to start charge received
-        if payload['ev_charging']['charge'] == "start":
+        if payload['charging']['charge'] == "start":
             print("start charging ...")
             # start charging
             cf = 1
@@ -282,7 +288,7 @@ def ps_cmd_exe(msg, client, ps_pin):
             ps_cmd_ack(client, msg, payload, "ok")
             # red_led_blink()
             # update_light_status_attribute(client, msg, "on")
-        elif payload['ev_charging']['charge'] == "stop":
+        elif payload['charging']['charge'] == "stop":
             print("interrupting charge ...")
             cf = 0
             red_blink_iterations = -1
@@ -302,7 +308,7 @@ def on_connect(client, userdata, flags, rc):
         # Subscribing in on_connect() - if we lose the connection and
         # reconnect then subscriptions will be renewed.
         # subscribe to light topics to listen for lights on
-        client.subscribe(cmd_topic(ps_topic))
+        client.subscribe(cmd_topic(ev_topic))
     else:
         print("Failed connecting to Broker Check credentials and broker address")
 
@@ -311,7 +317,7 @@ def on_connect(client, userdata, flags, rc):
 
 def on_message(client, userdata, msg):
     print(msg.topic + " " + str(msg.payload))
-    if msg.topic == (cmd_topic(ps_topic)):
+    if msg.topic == (cmd_topic(ev_topic)):
         ps_cmd_exe(msg, client, ps_pin)
 
 
