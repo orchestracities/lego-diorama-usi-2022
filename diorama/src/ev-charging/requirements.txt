@@ -1,0 +1,2 @@
+grovepi==1.0.4
+paho_mqtt==1.6.1
