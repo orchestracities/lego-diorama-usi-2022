@@ -20,10 +20,8 @@ Account Server:
 https://eu1.cloud.thethings.network/
 
 Gateway Key:
-NNSXS.NACIYY37UADMZG6O6XD7HRH6OM6XDHEKEIUU4CI.VSZHH6U77GJZHBQB2LNO6RQN3RFONSVYEUKI3OBZXPJGCU5EB4KQC0MM3NT01T4L1ANO
+"Stored safely in local"
 ```
-
-- Remember to remove the security part.
 
 After configuration wait until 4 out of 5 blue leds turn on.
 
@@ -116,7 +114,6 @@ The code below is the comand, already configured, that we use in order to connec
 
 Two keys, one for each application are generated in order to
 connect and used as password.
-Remember to remove the security code.
 
 ```bash
 curl --location --request POST 'localhost:4042/iot/services' \
@@ -126,6 +123,8 @@ curl --location --request POST 'localhost:4042/iot/services' \
 --data-raw '{
   "services": [
     {
+      "device_id": "urn:ngsi-ld:WasteContainer:martel-ttn-001"
+      "entity_name": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
       "entity_type": "WasteContainer",
       "apikey": "",
       "resource": "8CF957200005727C",
@@ -139,50 +138,42 @@ curl --location --request POST 'localhost:4042/iot/services' \
           "object_id": "relative_humidity_1",
           "name": "relativeHumidity",
           "type": "Number"
+        },
+        {
+          "object_id": "digital_in_1",
+          "name": "flameDetected",
+          "type": "Number"
+        },
+        {
+          "object_id": "digital_in_1",
+          "name": "fillingLevel",
+          "type": "Number"
+        },
+        {
+          "object_id": "digital_in_2",
+          "name": "status",
+          "type": "Number"
+        }
+      ],
+      "internal_attributes": {
+        "lorawan": {
+          "application_server": {
+            "host": "eu1.cloud.thethings.network"
+            "username": "oc-diorama-001@ttn",
+            "password": "password",
+            "provider": "TTN"
           },
-          {
-            "object_id": "digital_in_1",
-            "name": "flameDetected",
-            "type": "Number"
-            },
-            {
-              "object_id": "digital_in_2",
-              "name": "fillingLevelPercentage",
-              "type": "Number"
-            },
-            {
-              "object_id": "accelerometer_1",
-              "name": "accelerometerXYZ",
-              "type": "StructuredValue"
-            },
-            {
-              "object_id": "accelerometer_2",
-              "name": "gAccellerationXYZ",
-              "type": "StructuredValue"
-            },
-            {
-              "object_id": "digital_in_3",
-              "name": "status",
-              "type": "Number"
-            }
-          ],
-          "internal_attributes": {
-            "lorawan": {
-              "application_server": {
-                "host": "eu1.cloud.thethings.network",
-                "username": "oc-diorama-001@ttn",
-                "password": "NNSXS.KQRRO4R7BXMHELHQZOMELYUJ2GQUU4S5EI2I6QY.P7FJVWQRODOLCOHOAC2GQMEDO65LINW6YAOBKL6YMUU2K5C4R5MAC0MM3NT01T4L1ANO",
-                "provider": "TTN"
-                },
-                "app_eui": "8CF957200005727C",
-                "application_id": "oc-diorama-001@ttn",
-                "application_key": "51F58CAC3F5735E3D1F88DD3EADBE9C6",
-                "data_model": "application_server"
-            }
-          }
+          "app_eui": "8CF957200005727C",
+          "application_id": "oc-diorama-001@ttn",
+          "application_key": "51F58CAC3F5735E3D1F88DD3EADBE9C6",
+          "data_model": "application_server"
+        }
+      }
     },
     {
-      "entity_type": "environment",
+      "device_id": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
+      "entity_name": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002"
+      "entity_type": "AirQualityObserved",
       "apikey": "",
       "resource": "8CF95720000569A6",
       "attributes": [
@@ -227,7 +218,7 @@ curl --location --request POST 'localhost:4042/iot/services' \
           "application_server": {
             "host": "eu1.cloud.thethings.network",
             "username": "oc-diorama-002@ttn",
-            "password": "NNSXS.WYCQ2VM2FNMXR5DNYYCYAHAQAACG4XA3FTBMRYA.SNSYCYYNLGVM4POZWSQ4VINZOUUPT5OAV3DU436W6AZXPRTLQCZAC0MM3NT01T4L1ANO",
+            "password": "password",
             "provider": "TTN"
           },
           "app_eui": "8CF95720000569A6",

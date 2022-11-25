@@ -84,20 +84,20 @@ void loop(void) {
     lpp.addRelativeHumidity(1, humidity);
 
     // FlameSensor
-    lpp.addDigitalInput(1, isFlameDetected());
+    // lpp.addDigitalInput(1, isFlameDetected());
 
     // DistanceSensor
     distanceLoop();
-    lpp.addDigitalInput(2, fillingLevel);
+    lpp.addDigitalInput(1, fillingLevel);
 
     // Accelerometer
     accelerometerLoop();
 
-    lpp.addAccelerometer(1, x, y, z);
-    lpp.addAccelerometer(2, ax, ay, az);
+    // lpp.addAccelerometer(1, x, y, z);
+    // lpp.addAccelerometer(2, ax, ay, az);
 
     getStatus();
-    lpp.addDigitalInput(3, status);
+    lpp.addDigitalInput(2, status);
 
     bool msg1 = lora.transferPacketWithConfirmed(lpp.getBuffer(), lpp.getSize(), 5);
     delay(4000);
