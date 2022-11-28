@@ -11,6 +11,7 @@
 - Demo docker stack (#28)
 - GrovePI base docker image
 - GrovePI example docker image
+- Connected sensors to json agent (#15)
 
 ### Bug fixes
 

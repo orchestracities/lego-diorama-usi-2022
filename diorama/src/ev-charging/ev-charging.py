@@ -39,12 +39,17 @@ if username is not None and password is not None:
         auth = {'username': username, 'password': password}
 # topic base config
 protocol = str(config['connection']['protocol'])
-service_api_key = str(config['ev_parking']['ev_service_api_key'])
+ev_api_key = str(config['ev_parking']['ev_service_api_key'])
 
 # proximity sensor setup
 ps_pin = int(config['ev_parking']['ps_pin'])
 ps_id = str(config['ev_parking']['ps_id'])
-ps_topic = topic_constructor(protocol, service_api_key, ps_id)
+ps_api_key = str(config['parking']['parking_service_api_key'])
+ps_topic = topic_constructor(protocol, ps_api_key, ps_id)
+
+# ev charging setup
+ev_id = str(config['ev_parking']['ev_id'])
+ev_topic = topic_constructor(protocol, ev_api_key, ev_id)
 # distance from which the car is  detected
 car_detection_distance = int(config['ev_parking']['car_detection_distance'])
 # sleep time
@@ -59,8 +64,6 @@ green_l_id = str(config['ev_parking']['green_l_id'])
 
 # button
 button_pin = int(config['ev_parking']['button_pin'])
-button_id = str(config['ev_parking']['button_id'])
-button_topic = topic_constructor(protocol, service_api_key, button_id)
 grovepi.pinMode(button_pin, "INPUT")
 
 # charging flag 0 no charging 1 charging on going
@@ -104,32 +107,15 @@ def pub_charging_status(
     print("published: " + str(charging_status_obj) + " on topic: " + pub_topic)
 
 
-def pub_button_status(
-        button_status,
-        sensor_base_topic,
-        authentication,
-        broker_address,
-        port_number):
-    # create topic
-    pub_topic = attr_topic(sensor_base_topic)
-    # create payload object (attr)
-    button_status_obj = {'button': button_status}
-    # convert to json
-    button_status_obj = json.dumps(button_status_obj)
-    publish.single(
-        pub_topic,
-        payload=button_status_obj,
-        hostname=broker_address,
-        port=port_number,
-        auth=authentication)
-    print("published: " + str(button_status_obj) + " on topic: " + pub_topic)
-
-
 def red_led_blink():
     global red_blink_iterations
+    global cf
 
     if red_blink_iterations == 5:
-        pub_charging_status(0, ps_topic, auth, broker_address, port)
+        pub_charging_status(0, ev_topic, auth, broker_address, port)
+
+    if (grovepi.digitalRead(button_pin) == 1):
+        cf = 0
 
     if (cf == 1) and (red_blink_iterations >= 0):
         # Blink the LED
@@ -145,13 +131,14 @@ def red_led_blink():
 
         # charging status complete
         if (red_blink_iterations == 0):
-            pub_charging_status(1, ps_topic, auth, broker_address, port)
+            pub_charging_status(1, ev_topic, auth, broker_address, port)
             grovepi.digitalWrite(red_l_pin, 1)
 
         red_blink_iterations = red_blink_iterations - 1
     # if charge intrerrupt:
     else:
         # grovepi.digitalWrite(red_l_pin, 1)
+        cf = 0
         print("not charging")
 
 
@@ -181,6 +168,8 @@ def pub_parking_status(
 
 
 def monitor_parking():
+    global cf
+    global red_blink_iterations
     # initialize parking spot
     parking_spot_status = "free"
     set_led(green_l_pin)
@@ -217,12 +206,16 @@ def monitor_parking():
             # used to limit requests to public mqtt broker to avoid getting
             # banned to be removed when using private mqtt broker
             if (grovepi.digitalRead(button_pin) ==
-                    1 and parking_spot_status == "occupied"):
-                pub_button_status("pressed",
-                                  button_topic, auth, broker_address, port)
-
-            if (parking_spot_status == "occupied"):
+                    1 and parking_spot_status == "occupied" and cf != 1):
+                cf = 1
+                red_blink_iterations = 5
+                sleep(0.5)
                 red_led_blink()
+
+            if (cf == 1):
+                red_led_blink()
+                if (grovepi.digitalRead(button_pin) == 1):
+                    cf = 0
 
             sleep(sleep_time)
         except TypeError:
@@ -233,7 +226,7 @@ def monitor_parking():
 
 def ps_cmd_ack(client, msg, payload, status):
     # prep ack object
-    payload['ev_charging']['charge'] = status
+    payload['charging']['charge'] = status
     # send ack with json
     topic = ack_topic(str(msg.topic))
     print("sending ack to topic:" + str(topic))
@@ -248,7 +241,7 @@ def ps_cmd_exe(msg, client, ps_pin):
 
     try:
         # if message to start charge received
-        if payload['ev_charging']['charge'] == "start":
+        if payload['charging']['charge'] == "start":
             print("start charging ...")
             # start charging
             cf = 1
@@ -257,7 +250,7 @@ def ps_cmd_exe(msg, client, ps_pin):
             ps_cmd_ack(client, msg, payload, "ok")
             # red_led_blink()
             # update_light_status_attribute(client, msg, "on")
-        elif payload['ev_charging']['charge'] == "stop":
+        elif payload['charging']['charge'] == "stop":
             print("interrupting charge ...")
             cf = 0
             red_blink_iterations = -1
@@ -277,7 +270,7 @@ def on_connect(client, userdata, flags, rc):
         # Subscribing in on_connect() - if we lose the connection and
         # reconnect then subscriptions will be renewed.
         # subscribe to light topics to listen for lights on
-        client.subscribe(cmd_topic(ps_topic))
+        client.subscribe(cmd_topic(ev_topic))
     else:
         print("Failed connecting to Broker Check credentials and broker address")
 
@@ -286,7 +279,7 @@ def on_connect(client, userdata, flags, rc):
 
 def on_message(client, userdata, msg):
     print(msg.topic + " " + str(msg.payload))
-    if msg.topic == (cmd_topic(ps_topic)):
+    if msg.topic == (cmd_topic(ev_topic)):
         ps_cmd_exe(msg, client, ps_pin)
 
 
