@@ -47,7 +47,7 @@ ps_id = str(config['ev_parking']['ps_id'])
 ps_api_key = str(config['parking']['parking_service_api_key'])
 ps_topic = topic_constructor(protocol, ps_api_key, ps_id)
 
-#ev charging setup
+# ev charging setup
 ev_id = str(config['ev_parking']['ev_id'])
 ev_topic = topic_constructor(protocol, ev_api_key, ev_id)
 # distance from which the car is  detected
@@ -106,15 +106,16 @@ def pub_charging_status(
         auth=authentication)
     print("published: " + str(charging_status_obj) + " on topic: " + pub_topic)
 
+
 def red_led_blink():
     global red_blink_iterations
     global cf
 
     if red_blink_iterations == 5:
         pub_charging_status(0, ev_topic, auth, broker_address, port)
-    
+
     if (grovepi.digitalRead(button_pin) == 1):
-                    cf = 0
+        cf = 0
 
     if (cf == 1) and (red_blink_iterations >= 0):
         # Blink the LED
@@ -137,7 +138,7 @@ def red_led_blink():
     # if charge intrerrupt:
     else:
         # grovepi.digitalWrite(red_l_pin, 1)
-        cf = 0;
+        cf = 0
         print("not charging")
 
 
@@ -205,10 +206,10 @@ def monitor_parking():
             # used to limit requests to public mqtt broker to avoid getting
             # banned to be removed when using private mqtt broker
             if (grovepi.digitalRead(button_pin) ==
-                    1 and parking_spot_status == "occupied" and cf!=1):
-                cf = 1;
-                red_blink_iterations = 5;
-                sleep(0.5);
+                    1 and parking_spot_status == "occupied" and cf != 1):
+                cf = 1
+                red_blink_iterations = 5
+                sleep(0.5)
                 red_led_blink()
 
             if (cf == 1):
