@@ -1,8 +1,7 @@
-# Examplary docker-compose file using the provided Dockerfile
 version: '3.4'
 
 services:
-  traffic:
+  parking:
     privileged: true
     stdin_open: true
     tty: true
