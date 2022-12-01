@@ -52,12 +52,6 @@ uint32_t NO2 = 0, C2H5OH = 0, VOC = 0, CO = 0;
 //AirQualitySensor
 uint32_t quality = 0;
 
-//AirQualitySensor status
-//FORCE_SIGNAL 3;
-//HIGH_POLLUTION 2;
-//LOW_POLLUTION 1;
-//FRESH_AIR 0;
-
 //soundSensor
 int soundValue = 0;
 
@@ -149,7 +143,6 @@ void lorawanConfig() {
         ;
 }
 
-
 // MULTICHANNEL GAS SENSOR
 void multGasSensorSetup() {
     gas.begin(Wire, 0x08); // use the hardware I2C
@@ -176,12 +169,13 @@ void airQualitySetup() {
 
 void airQualityLoop() {
     int slope = sensor.slope();
+    int value = sensor.getValue();
 
     if(DEBUG){
       Serial.print("Sensor value: ");
-      Serial.println(sensor.getValue());
-    }  
-    
+      Serial.println(value);
+    } 
+        
     if (slope == AirQualitySensor::FORCE_SIGNAL) {
         quality = 3;
     } else if (slope == AirQualitySensor::HIGH_POLLUTION) {
@@ -191,7 +185,6 @@ void airQualityLoop() {
     } else if (slope == AirQualitySensor::FRESH_AIR) {
         quality = 0;
     }
-
 }
 
 // SOUND SENSOR

@@ -110,9 +110,12 @@ loraAgentSubscription() {
 	        {
 				"device_id": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
      			"entity_name": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
+				"device_id": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
+     			"entity_name": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
 	            "entity_type": "WasteContainer",
 	            "apikey": "",
 	            "resource": "8CF957200005727C",
+				"expressionLanguage": "jexl",
 	            "attributes": [
 	                {
 	                    "object_id": "temperature_1",
@@ -123,16 +126,17 @@ loraAgentSubscription() {
 	                    "object_id": "relative_humidity_1",
 	                    "name": "relativeHumidity",
 	                    "type": "Number"
-	                }
+	                },
 	                {
 	                    "object_id": "digital_in_1",
 	                    "name": "fillingLevel",
 	                    "type": "Number"
-	                }
+	                },
 	                {
 	                    "object_id": "digital_in_2",
 	                    "name": "status",
-	                    "type": "Number"
+	                    "type": "Text",
+						"expression" : "digital_in_2 == 0 ? \"Ok\" : digital_in_2 == 1 ? \"Lid Open\" : digital_in_2 == 2 ? \"Dropped\" : \"Burning\" "
 	                }
 	            ],
 	            "internal_attributes": {
@@ -140,7 +144,7 @@ loraAgentSubscription() {
 	                    "application_server": {
 	                        "host": "eu1.cloud.thethings.network",
 	                        "username": "oc-diorama-001@ttn",
-	                        "password": "",
+	                        "password": "NNSXS.KQRRO4R7BXMHELHQZOMELYUJ2GQUU4S5EI2I6QY.P7FJVWQRODOLCOHOAC2GQMEDO65LINW6YAOBKL6YMUU2K5C4R5MA",
 	                        "provider": "TTN"
 	                    },
 	                    "app_eui": "8CF957200005727C",
@@ -153,9 +157,12 @@ loraAgentSubscription() {
 	        {
 				"device_id": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
       			"entity_name": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
-	            "entity_type": "AirQualityObserved",
+				"device_id": "urn:ngsi-ld:environment:martel-ttn-002",
+      			"entity_name": "urn:ngsi-ld:environment:martel-ttn-002",
+	            "entity_type": "environment",
 	            "apikey": "",
 	            "resource": "8CF95720000569A6",
+				"expressionLanguage": "jexl",
 	            "attributes": [
 	                {
 	                    "object_id": "digital_in_1",
@@ -180,7 +187,8 @@ loraAgentSubscription() {
 	                {
 	                    "object_id": "digital_in_5",
 	                    "name": "airQuality",
-	                    "type": "Number"
+	                    "type": "Text",
+						"expression" : "digital_in_5 == 0 ? \"Good\" : digital_in_5 == 1 ? \"Low\" : digital_in_5 == 2 ? \"Med\" : \"High\" "
 	                },
 	                {
 	                    "object_id": "digital_in_6",
@@ -198,7 +206,7 @@ loraAgentSubscription() {
 	                    "application_server": {
 	                        "host": "eu1.cloud.thethings.network",
 	                        "username": "oc-diorama-002@ttn",
-	                        "password": "",
+	                        "password": "NNSXS.WYCQ2VM2FNMXR5DNYYCYAHAQAACG4XA3FTBMRYA.SNSYCYYNLGVM4POZWSQ4VINZOUUPT5OAV3DU436W6AZXPRTLQCZA",
 	                        "provider": "TTN"
 	                    },
 	                    "app_eui": "8CF95720000569A6",
