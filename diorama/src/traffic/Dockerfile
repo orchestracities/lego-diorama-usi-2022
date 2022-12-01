@@ -11,4 +11,4 @@ ADD . /app
 # User needs to be root to be able to access GPIO.
 
 # During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
-CMD ["sudo", "python3", "traffic_counter.py", "street_lights.py"]
+CMD ["sudo", "python3", "street_lights.py", "&", "python3", "traffic_counter.py"]

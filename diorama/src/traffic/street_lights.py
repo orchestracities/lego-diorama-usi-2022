@@ -97,7 +97,8 @@ def update_light_status_attribute(client, msg, state):
 
 
 def light_cmd_exe(msg, client, light_pin):
-    payload = json.loads(str(msg.payload))
+    data = msg.payload.decode("utf-8")
+    payload = json.loads(data)
     try:
         if payload['power']['switch'] == "on":
             print("turning on lights ...")
