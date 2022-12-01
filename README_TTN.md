@@ -123,7 +123,7 @@ curl --location --request POST 'localhost:4042/iot/services' \
 --data-raw '{
   "services": [
     {
-      "device_id": "urn:ngsi-ld:WasteContainer:martel-ttn-001"
+      "device_id": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
       "entity_name": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
       "entity_type": "WasteContainer",
       "apikey": "",
@@ -141,23 +141,23 @@ curl --location --request POST 'localhost:4042/iot/services' \
           "type": "Number"
         },
         {
-          "object_id": "digital_in_2",
+          "object_id": "digital_in_1",
           "name": "fillingLevel",
           "type": "Number"
         },
         {
           "object_id": "digital_in_2",
           "name": "status",
-          "type": "Number",
-          "expression" : "digital_in_2 == 0 ? \"Ok\" : digital_in_2 == 1 ? \"Lid Open\" : digital_in_2 == 2 ? \"Dropped\" : \"Burning\" "
+          "type": "Text",
+          "expression" : "digital_in_2 == 0 ? \"Ok\" : digital_in_2 == 1 ? \"Lid Open\" : digital_in_2 == 2 ? \"Dropped\" :\"Burning\" "
         }
       ],
       "internal_attributes": {
         "lorawan": {
           "application_server": {
-            "host": "eu1.cloud.thethings.network"
+            "host": "eu1.cloud.thethings.network",
             "username": "oc-diorama-001@ttn",
-            "password": "password",
+            "password": "pass",
             "provider": "TTN"
           },
           "app_eui": "8CF957200005727C",
@@ -166,18 +166,29 @@ curl --location --request POST 'localhost:4042/iot/services' \
           "data_model": "application_server"
         }
       }
-    },
+    }
+  ]}'
+
+curl --location --request POST 'localhost:4042/iot/services' \
+--header 'fiware-service: openiot' \
+--header 'fiware-servicePath: /' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "services": [
     {
       "device_id": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
-      "entity_name": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002"
-      "entity_type": "AirQualityObserved",
+      "entity_name": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
+      "device_id": "urn:ngsi-ld:environment:martel-ttn-002",
+      "entity_name": "urn:ngsi-ld:environment:martel-ttn-002",
+      "entity_type": "environment",
       "apikey": "",
       "resource": "8CF95720000569A6",
+      "expressionLanguage": "jexl",
       "attributes": [
         {
           "object_id": "digital_in_1",
-           "name": "NO2",
-           "type": "Number"
+          "name": "NO2",
+          "type": "Number"
         },
         {
           "object_id": "digital_in_2",
@@ -209,24 +220,24 @@ curl --location --request POST 'localhost:4042/iot/services' \
           "object_id": "digital_in_7",
           "name": "UVvalue",
           "type": "Number"
-          }
+        }
       ],
       "internal_attributes": {
         "lorawan": {
           "application_server": {
             "host": "eu1.cloud.thethings.network",
             "username": "oc-diorama-002@ttn",
-            "password": "password",
+            "password": "",
             "provider": "TTN"
-          },
-          "app_eui": "8CF95720000569A6",
-          "application_id": "oc-diorama-002@ttn",
-          "application_key": "F80714239C6BC515D1772ED0C38A55F0",
-          "data_model": "application_server"
+            },
+            "app_eui": "8CF95720000569A6",
+            "application_id": "oc-diorama-002@ttn",
+            "application_key": "F80714239C6BC515D1772ED0C38A55F0",
+            "data_model": "application_server"
+          }
         }
       }
-    }
-  ]}'
+    ]}'
 ```
 
 ## Required libraries for seed-martel-001

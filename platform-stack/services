@@ -151,8 +151,17 @@ loraAgentSubscription() {
 	                    "data_model": "application_server"
 	                }
 	            }
-	        },
-	        {
+	        }
+	    ]
+	}'
+
+	curl --location --request POST 'localhost:4042/iot/services' \
+	--header 'fiware-service: openiot' \
+	--header 'fiware-servicePath: /' \
+	--header 'Content-Type: application/json' \
+	--data-raw '{
+	    "services": [
+            {
 				"device_id": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
       			"entity_name": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
 				"device_id": "urn:ngsi-ld:environment:martel-ttn-002",
