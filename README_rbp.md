@@ -189,6 +189,12 @@ system which supports snapd)
     $ alias kubectl='microk8s kubectl'
     ```
 
+1. Install CoreDNS
+
+  ```bash
+  $ microk8s enable dns
+  ```
+
 1. Install Kubeedge master node using Keadm
 
     ```bash
