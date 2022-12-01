@@ -128,6 +128,7 @@ curl --location --request POST 'localhost:4042/iot/services' \
       "entity_type": "WasteContainer",
       "apikey": "",
       "resource": "8CF957200005727C",
+      "expressionLanguage": "jexl",
       "attributes": [
         {
           "object_id": "temperature_1",
@@ -145,9 +146,10 @@ curl --location --request POST 'localhost:4042/iot/services' \
           "type": "Number"
         },
         {
-          "object_id": "digital_in_1",
+          "object_id": "digital_in_2",
           "name": "fillingLevel",
-          "type": "Number"
+          "type": "Text",
+          "expression" : "digital_in_2 == 0 ? \"Ok\" : digital_in_2 == 1 ? \"Lid Open\" : digital_in_2 == 2 ? \"Dropped\" : \"Burning\" "
         },
         {
           "object_id": "digital_in_2",
@@ -200,7 +202,8 @@ curl --location --request POST 'localhost:4042/iot/services' \
         {
           "object_id": "digital_in_5",
           "name": "airQuality",
-          "type": "Number"
+          "type": "Text",
+          "expression" : "digital_in_5 == 0 ? \"Good\" : digital_in_5 == 1 ? \"Low\" : digital_in_5 == 2 ? \"Med\" : \"High\" "
         },
         {
           "object_id": "digital_in_6",
