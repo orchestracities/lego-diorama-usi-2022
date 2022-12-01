@@ -141,20 +141,15 @@ curl --location --request POST 'localhost:4042/iot/services' \
           "type": "Number"
         },
         {
-          "object_id": "digital_in_1",
-          "name": "flameDetected",
-          "type": "Number"
-        },
-        {
           "object_id": "digital_in_2",
           "name": "fillingLevel",
-          "type": "Text",
-          "expression" : "digital_in_2 == 0 ? \"Ok\" : digital_in_2 == 1 ? \"Lid Open\" : digital_in_2 == 2 ? \"Dropped\" : \"Burning\" "
+          "type": "Number"
         },
         {
           "object_id": "digital_in_2",
           "name": "status",
-          "type": "Number"
+          "type": "Number",
+          "expression" : "digital_in_2 == 0 ? \"Ok\" : digital_in_2 == 1 ? \"Lid Open\" : digital_in_2 == 2 ? \"Dropped\" : \"Burning\" "
         }
       ],
       "internal_attributes": {
@@ -228,7 +223,7 @@ curl --location --request POST 'localhost:4042/iot/services' \
           "application_id": "oc-diorama-002@ttn",
           "application_key": "F80714239C6BC515D1772ED0C38A55F0",
           "data_model": "application_server"
-          }
+        }
       }
     }
   ]}'

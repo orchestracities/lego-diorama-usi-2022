@@ -136,7 +136,7 @@ loraAgentSubscription() {
 	                    "object_id": "digital_in_2",
 	                    "name": "status",
 	                    "type": "Text",
-			    "expression" : "digital_in_2 == 0 ? \"Ok\" : digital_in_2 == 1 ? \"Lid Open\" : digital_in_2 == 2 ? \"Dropped\" : \"Burning\" "
+						"expression" : "digital_in_2 == 0 ? \"Ok\" : digital_in_2 == 1 ? \"Lid Open\" : digital_in_2 == 2 ? \"Dropped\" : \"Burning\" "
 	                }
 	            ],
 	            "internal_attributes": {
@@ -144,7 +144,7 @@ loraAgentSubscription() {
 	                    "application_server": {
 	                        "host": "eu1.cloud.thethings.network",
 	                        "username": "oc-diorama-001@ttn",
-	                        "password": "NNSXS.KQRRO4R7BXMHELHQZOMELYUJ2GQUU4S5EI2I6QY.P7FJVWQRODOLCOHOAC2GQMEDO65LINW6YAOBKL6YMUU2K5C4R5MA",
+	                        "password": "pass",
 	                        "provider": "TTN"
 	                    },
 	                    "app_eui": "8CF957200005727C",
@@ -188,7 +188,7 @@ loraAgentSubscription() {
 	                    "object_id": "digital_in_5",
 	                    "name": "airQuality",
 	                    "type": "Text",
-			    "expression" : "digital_in_5 == 0 ? \"Good\" : digital_in_5 == 1 ? \"Low\" : digital_in_5 == 2 ? \"Med\" : \"High\" "
+						"expression" : "digital_in_5 == 0 ? \"Good\" : digital_in_5 == 1 ? \"Low\" : digital_in_5 == 2 ? \"Med\" : \"High\" "
 	                },
 	                {
 	                    "object_id": "digital_in_6",
@@ -206,7 +206,7 @@ loraAgentSubscription() {
 	                    "application_server": {
 	                        "host": "eu1.cloud.thethings.network",
 	                        "username": "oc-diorama-002@ttn",
-	                        "password": "NNSXS.WYCQ2VM2FNMXR5DNYYCYAHAQAACG4XA3FTBMRYA.SNSYCYYNLGVM4POZWSQ4VINZOUUPT5OAV3DU436W6AZXPRTLQCZA",
+	                        "password": "pass",
 	                        "provider": "TTN"
 	                    },
 	                    "app_eui": "8CF95720000569A6",

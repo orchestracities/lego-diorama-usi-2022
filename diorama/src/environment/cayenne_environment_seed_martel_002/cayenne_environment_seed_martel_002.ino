@@ -175,7 +175,7 @@ void airQualityLoop() {
       Serial.print("Sensor value: ");
       Serial.println(value);
     } 
-        
+    
     if (slope == AirQualitySensor::FORCE_SIGNAL) {
         quality = 3;
     } else if (slope == AirQualitySensor::HIGH_POLLUTION) {
