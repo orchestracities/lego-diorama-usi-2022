@@ -3,6 +3,8 @@ FROM orchestracities/grovepi:3.7-buster
 # Install pip requirements
 USER root
 ADD requirements.txt .
+RUN sudo apt install python2
+RUN python2 -m pip install -r requirements.txt
 RUN python3 -m pip install -r requirements.txt
 USER pi
 WORKDIR /app
