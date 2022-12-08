@@ -184,6 +184,7 @@ For more information on each service read the [Relevant Readings](#Relevant_Read
       ]
   }'
   ```
+>NOTE: In order to make the subscription work is needed to configure the .env file with correct passwords.
 
 > NOTE: LoraWan connection data needs to be retrieved from TTN. Check the
 Lorwan Agent documentation for guidance.
