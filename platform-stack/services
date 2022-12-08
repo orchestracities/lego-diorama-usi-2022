@@ -108,12 +108,12 @@ loraAgentSubscription() {
 	--data-raw '{
 	    "services": [
 	        {
-				"device_id": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
-     			"entity_name": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
+		    "device_id": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
+     		    "entity_name": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
 	            "entity_type": "wastecontainer",
 	            "apikey": "",
 	            "resource": "8CF957200005727C",
-				"expressionLanguage": "jexl",
+		    "expressionLanguage": "jexl",
 	            "attributes": [
 	                {
 	                    "object_id": "temperature_1",
@@ -134,7 +134,7 @@ loraAgentSubscription() {
 	                    "object_id": "digital_in_2",
 	                    "name": "status",
 	                    "type": "Text",
-						"expression" : "digital_in_2 == 0 ? \"Ok\" : digital_in_2 == 1 ? \"Lid Open\" : digital_in_2 == 2 ? \"Dropped\" : \"Burning\" "
+			    "expression" : "digital_in_2 == 0 ? \"Ok\" : digital_in_2 == 1 ? \"Lid Open\" : digital_in_2 == 2 ? \"Dropped\" : \"Burning\" "
 	                }
 	            ],
 	            "internal_attributes": {
@@ -162,12 +162,12 @@ loraAgentSubscription() {
 	--data-raw '{
 	    "services": [
             {
-				"device_id": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
-      			"entity_name": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
+		    "device_id": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
+      		    "entity_name": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
 	            "entity_type": "environment",
 	            "apikey": "",
 	            "resource": "8CF95720000569A6",
-				"expressionLanguage": "jexl",
+		    "expressionLanguage": "jexl",
 	            "attributes": [
 	                {
 	                    "object_id": "digital_in_1",
@@ -193,7 +193,7 @@ loraAgentSubscription() {
 	                    "object_id": "digital_in_5",
 	                    "name": "airQuality",
 	                    "type": "Text",
-						"expression" : "digital_in_5 == 0 ? \"Good\" : digital_in_5 == 1 ? \"Low\" : digital_in_5 == 2 ? \"Med\" : \"High\" "
+			    "expression" : "digital_in_5 == 0 ? \"Good\" : digital_in_5 == 1 ? \"Low\" : digital_in_5 == 2 ? \"Med\" : \"High\" "
 	                },
 	                {
 	                    "object_id": "digital_in_6",
