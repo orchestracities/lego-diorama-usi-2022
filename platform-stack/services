@@ -110,7 +110,7 @@ loraAgentSubscription() {
 	        {
 				"device_id": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
      			"entity_name": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
-	            "entity_type": "WasteContainer",
+	            "entity_type": "wastecontainer",
 	            "apikey": "",
 	            "resource": "8CF957200005727C",
 				"expressionLanguage": "jexl",
@@ -142,7 +142,7 @@ loraAgentSubscription() {
 	                    "application_server": {
 	                        "host": "eu1.cloud.thethings.network",
 	                        "username": "oc-diorama-001@ttn",
-	                        "password": "NNSXS.KQRRO4R7BXMHELHQZOMELYUJ2GQUU4S5EI2I6QY.P7FJVWQRODOLCOHOAC2GQMEDO65LINW6YAOBKL6YMUU2K5C4R5MA",
+	                        "password": "'${PASSWORD_TTN1}'",
 	                        "provider": "TTN"
 	                    },
 	                    "app_eui": "8CF957200005727C",
@@ -164,8 +164,6 @@ loraAgentSubscription() {
             {
 				"device_id": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
       			"entity_name": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
-				"device_id": "urn:ngsi-ld:environment:martel-ttn-002",
-      			"entity_name": "urn:ngsi-ld:environment:martel-ttn-002",
 	            "entity_type": "environment",
 	            "apikey": "",
 	            "resource": "8CF95720000569A6",
@@ -213,7 +211,7 @@ loraAgentSubscription() {
 	                    "application_server": {
 	                        "host": "eu1.cloud.thethings.network",
 	                        "username": "oc-diorama-002@ttn",
-	                        "password": "NNSXS.WYCQ2VM2FNMXR5DNYYCYAHAQAACG4XA3FTBMRYA.SNSYCYYNLGVM4POZWSQ4VINZOUUPT5OAV3DU436W6AZXPRTLQCZA",
+	                        "password": "'${PASSWORD_TTN2}'",
 	                        "provider": "TTN"
 	                    },
 	                    "app_eui": "8CF95720000569A6",

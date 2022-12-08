@@ -178,8 +178,6 @@ curl --location --request POST 'localhost:4042/iot/services' \
     {
       "device_id": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
       "entity_name": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
-      "device_id": "urn:ngsi-ld:environment:martel-ttn-002",
-      "entity_name": "urn:ngsi-ld:environment:martel-ttn-002",
       "entity_type": "environment",
       "apikey": "",
       "resource": "8CF95720000569A6",
