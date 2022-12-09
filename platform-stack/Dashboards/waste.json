@@ -43,7 +43,29 @@
             "lineWidth": 0,
             "spanNulls": false
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "Burning": {
+                  "color": "dark-red",
+                  "index": 1
+                },
+                "Dropped": {
+                  "color": "dark-orange",
+                  "index": 0
+                },
+                "Lid Open": {
+                  "color": "blue",
+                  "index": 3
+                },
+                "Ok": {
+                  "color": "dark-green",
+                  "index": 2
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -245,6 +267,6 @@
   "timezone": "",
   "title": "Waste",
   "uid": "WasteContainer",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }

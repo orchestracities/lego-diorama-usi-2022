@@ -43,7 +43,29 @@
             "lineWidth": 0,
             "spanNulls": false
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "Good": {
+                  "color": "dark-green",
+                  "index": 0
+                },
+                "High": {
+                  "color": "dark-red",
+                  "index": 3
+                },
+                "Low": {
+                  "color": "dark-yellow",
+                  "index": 1
+                },
+                "Med": {
+                  "color": "dark-orange",
+                  "index": 2
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
