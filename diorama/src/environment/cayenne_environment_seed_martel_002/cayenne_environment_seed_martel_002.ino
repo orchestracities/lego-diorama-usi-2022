@@ -52,12 +52,6 @@ uint32_t NO2 = 0, C2H5OH = 0, VOC = 0, CO = 0;
 //AirQualitySensor
 uint32_t quality = 0;
 
-//AirQualitySensor status
-//FORCE_SIGNAL 3;
-//HIGH_POLLUTION 2;
-//LOW_POLLUTION 1;
-//FRESH_AIR 0;
-
 //soundSensor
 int soundValue = 0;
 
@@ -123,10 +117,12 @@ void lorawanConfig() {
     lora.getId(buffer, 256, 1);
     SerialUSB.print(buffer);
 
-    // void setId(char *DevAddr, char *DevEUI, char *AppEUI);
-    lora.setId(NULL, "70B3D57ED00561F1", "8CF95720000569A6");
+    // void setId(char *DevAddr, char *DevEUI, char *AppEUI); 
+    // lora.setId(NULL, "70B3D57ED00561F1", "8CF95720000569A6");
+    lora.setId(NULL, "70B3D57ED00579DB", "8CF95720000569A6");
     // setKey(char *NwkSKey, char *AppSKey, char *AppKey);
-    lora.setKey(NULL, NULL, "9C14C735E02914422112AC32D7C0EC27");
+    // lora.setKey(NULL, NULL, "9C14C735E02914422112AC32D7C0EC27");
+    lora.setKey(NULL, NULL, "F80714239C6BC515D1772ED0C38A55F0");
 
     lora.setDeciveMode(LWOTAA);
     lora.setDataRate(DR0, EU868);
@@ -146,7 +142,6 @@ void lorawanConfig() {
     while (!lora.setOTAAJoin(JOIN))
         ;
 }
-
 
 // MULTICHANNEL GAS SENSOR
 void multGasSensorSetup() {
@@ -174,11 +169,12 @@ void airQualitySetup() {
 
 void airQualityLoop() {
     int slope = sensor.slope();
+    int value = sensor.getValue();
 
     if(DEBUG){
       Serial.print("Sensor value: ");
-      Serial.println(sensor.getValue());
-    }  
+      Serial.println(value);
+    } 
     
     if (slope == AirQualitySensor::FORCE_SIGNAL) {
         quality = 3;
@@ -189,7 +185,6 @@ void airQualityLoop() {
     } else if (slope == AirQualitySensor::FRESH_AIR) {
         quality = 0;
     }
-
 }
 
 // SOUND SENSOR

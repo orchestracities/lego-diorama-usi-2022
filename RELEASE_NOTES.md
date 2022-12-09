@@ -9,6 +9,7 @@
 - Parking Management (#10)
 - Ev Charging (#11)
 - Demo docker stack (#28)
+- Connected ttn sensors to lorawan agent (#16)
 - GrovePI base docker image
 - GrovePI example docker image
 - Connected sensors to json agent (#15)

@@ -98,6 +98,133 @@ waitForIoTAgent () {
 	done
 }
 
+loraAgentSubscription() {
+	echo -e "\nSubscribing to mqtt\n"
+
+	curl --location --request POST 'localhost:4042/iot/services' \
+	--header 'fiware-service: openiot' \
+	--header 'fiware-servicePath: /' \
+	--header 'Content-Type: application/json' \
+	--data-raw '{
+	    "services": [
+	        {
+		    "device_id": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
+     		    "entity_name": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
+	            "entity_type": "wastecontainer",
+	            "apikey": "",
+	            "resource": "8CF957200005727C",
+		    "expressionLanguage": "jexl",
+	            "attributes": [
+	                {
+	                    "object_id": "temperature_1",
+	                    "name": "temperature",
+	                    "type": "Number"
+	                },
+	                {
+	                    "object_id": "relative_humidity_1",
+	                    "name": "relativeHumidity",
+	                    "type": "Number"
+	                },
+	                {
+	                    "object_id": "digital_in_1",
+	                    "name": "fillingLevel",
+	                    "type": "Number"
+	                },
+	                {
+	                    "object_id": "digital_in_2",
+	                    "name": "status",
+	                    "type": "Text",
+			    "expression" : "digital_in_2 == 0 ? \"Ok\" : digital_in_2 == 1 ? \"Lid Open\" : digital_in_2 == 2 ? \"Dropped\" : \"Burning\" "
+	                }
+	            ],
+	            "internal_attributes": {
+	                "lorawan": {
+	                    "application_server": {
+	                        "host": "eu1.cloud.thethings.network",
+	                        "username": "oc-diorama-001@ttn",
+	                        "password": "'${PASSWORD_TTN1}'",
+	                        "provider": "TTN"
+	                    },
+	                    "app_eui": "8CF957200005727C",
+	                    "application_id": "oc-diorama-001@ttn",
+	                    "application_key": "51F58CAC3F5735E3D1F88DD3EADBE9C6",
+	                    "data_model": "application_server"
+	                }
+	            }
+	        }
+	    ]
+	}'
+
+	curl --location --request POST 'localhost:4042/iot/services' \
+	--header 'fiware-service: openiot' \
+	--header 'fiware-servicePath: /' \
+	--header 'Content-Type: application/json' \
+	--data-raw '{
+	    "services": [
+            {
+		    "device_id": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
+      		    "entity_name": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
+	            "entity_type": "environment",
+	            "apikey": "",
+	            "resource": "8CF95720000569A6",
+		    "expressionLanguage": "jexl",
+	            "attributes": [
+	                {
+	                    "object_id": "digital_in_1",
+	                    "name": "NO2",
+	                    "type": "Number"
+	                },
+	                {
+	                    "object_id": "digital_in_2",
+	                    "name": "C2H50H",
+	                    "type": "Number"
+	                },
+	                {
+	                    "object_id": "digital_in_3",
+	                    "name": "VOC",
+	                    "type": "Number"
+	                },
+	                {
+	                    "object_id": "digital_in_4",
+	                    "name": "CO",
+	                    "type": "Number"
+	                },
+	                {
+	                    "object_id": "digital_in_5",
+	                    "name": "airQuality",
+	                    "type": "Text",
+			    "expression" : "digital_in_5 == 0 ? \"Good\" : digital_in_5 == 1 ? \"Low\" : digital_in_5 == 2 ? \"Med\" : \"High\" "
+	                },
+	                {
+	                    "object_id": "digital_in_6",
+	                    "name": "sound",
+	                    "type": "Number"
+	                },
+	                {
+	                    "object_id": "digital_in_7",
+	                    "name": "UVvalue",
+	                    "type": "Number"
+	                }
+	            ],
+	            "internal_attributes": {
+	                "lorawan": {
+	                    "application_server": {
+	                        "host": "eu1.cloud.thethings.network",
+	                        "username": "oc-diorama-002@ttn",
+	                        "password": "'${PASSWORD_TTN2}'",
+	                        "provider": "TTN"
+	                    },
+	                    "app_eui": "8CF95720000569A6",
+	                    "application_id": "oc-diorama-002@ttn",
+	                    "application_key": "F80714239C6BC515D1772ED0C38A55F0", 
+	                    "data_model": "application_server"
+	                }
+	            }
+	        }
+	    ]
+	}'
+}
+
 command="$1"
 case "${command}" in
 	"help")
@@ -115,8 +242,10 @@ case "${command}" in
 		${dockerCmd} up -d --remove-orphans
 		waitForMongo
 		addDatabaseIndex
+		waitForIoTAgent
 		waitForOrion
 		displayServices
+		loraAgentSubscription
 		;;
 	"stop")
 		export $(cat .env | grep "#" -v)
@@ -134,5 +263,3 @@ case "${command}" in
 		exit 127;
 		;;
 esac
-
-

@@ -20,10 +20,8 @@ Account Server:
 https://eu1.cloud.thethings.network/
 
 Gateway Key:
-NNSXS.NACIYY37UADMZG6O6XD7HRH6OM6XDHEKEIUU4CI.VSZHH6U77GJZHBQB2LNO6RQN3RFONSVYEUKI3OBZXPJGCU5EB4KQC0MM3NT01T4L1ANO
+"Stored safely in local"
 ```
-
-- Remember to remove the security part.
 
 After configuration wait until 4 out of 5 blue leds turn on.
 
@@ -39,14 +37,18 @@ The TTN Gateway is now ready to use.
 AppEUI: 8CF957200005727C
 DevEUI: 70B3D57ED00561EC
 AppKey: 51F58CAC3F5735E3D1F88DD3EADBE9C6
+
+Application: oc-diorama-001
 ```
 
 ### Device Info (seed-martel-002)
 
 ```bash
 AppEUI: 8CF95720000569A6
-DevEUI: 70B3D57ED00561F1
-AppKey: 9C14C735E02914422112AC32D7C0EC27
+DevEUI: 70B3D57ED00579DB
+AppKey: F80714239C6BC515D1772ED0C38A55F0
+
+Application: oc-diorama-002
 ```
 
 ## Connection between Seeeduino LoRaWAN and TTN
@@ -54,8 +56,8 @@ AppKey: 9C14C735E02914422112AC32D7C0EC27
 At the moment there are 2 Seeeduino LoRaWAN connected to our account on
 The Things Network.
 
-- To add another Seeeduino you need to add a new End Device under the
-  `oc-diorama-001` application that can be found in our TTN account.
+- To add another Seeeduino you need to add a new End Device under an
+  application in our TTN account, like `oc-diorama-001` or `oc-diorama-002`.
 
 - If there is no application, it must be created.
 
@@ -102,6 +104,139 @@ Details are available [here](https://blog.squix.org/2017/07/seeeduino-lora-gps-g
 
 Compiling the OTAA sketch should make the Seeeduino connect to the Gateway and
 send messages to the TTN.
+
+## Receive data from TTN into IoT-LoRaWan Agent
+
+In order to receive data from TTN the IoT-Lorawan Agent should
+subscribe to the applications on the TTN platform.
+
+The code below is the comand, already configured, that we use in order to connect.
+
+Two keys, one for each application are generated in order to
+connect and used as password.
+
+```bash
+curl --location --request POST 'localhost:4042/iot/services' \
+--header 'fiware-service: openiot' \
+--header 'fiware-servicePath: /' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "services": [
+    {
+      "device_id": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
+      "entity_name": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
+      "entity_type": "WasteContainer",
+      "apikey": "",
+      "resource": "8CF957200005727C",
+      "expressionLanguage": "jexl",
+      "attributes": [
+        {
+          "object_id": "temperature_1",
+          "name": "temperature",
+          "type": "Number"
+        },
+        {
+          "object_id": "relative_humidity_1",
+          "name": "relativeHumidity",
+          "type": "Number"
+        },
+        {
+          "object_id": "digital_in_1",
+          "name": "fillingLevel",
+          "type": "Number"
+        },
+        {
+          "object_id": "digital_in_2",
+          "name": "status",
+          "type": "Text",
+          "expression" : "digital_in_2 == 0 ? \"Ok\" : digital_in_2 == 1 ? \"Lid Open\" : digital_in_2 == 2 ? \"Dropped\" :\"Burning\" "
+        }
+      ],
+      "internal_attributes": {
+        "lorawan": {
+          "application_server": {
+            "host": "eu1.cloud.thethings.network",
+            "username": "oc-diorama-001@ttn",
+            "password": "pass",
+            "provider": "TTN"
+          },
+          "app_eui": "8CF957200005727C",
+          "application_id": "oc-diorama-001@ttn",
+          "application_key": "51F58CAC3F5735E3D1F88DD3EADBE9C6",
+          "data_model": "application_server"
+        }
+      }
+    }
+  ]}'
+
+curl --location --request POST 'localhost:4042/iot/services' \
+--header 'fiware-service: openiot' \
+--header 'fiware-servicePath: /' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "services": [
+    {
+      "device_id": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
+      "entity_name": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
+      "entity_type": "environment",
+      "apikey": "",
+      "resource": "8CF95720000569A6",
+      "expressionLanguage": "jexl",
+      "attributes": [
+        {
+          "object_id": "digital_in_1",
+          "name": "NO2",
+          "type": "Number"
+        },
+        {
+          "object_id": "digital_in_2",
+          "name": "C2H50H",
+          "type": "Number"
+        },
+        {
+          "object_id": "digital_in_3",
+          "name": "VOC",
+          "type": "Number"
+        },
+        {
+          "object_id": "digital_in_4",
+          "name": "CO",
+          "type": "Number"
+        },
+        {
+          "object_id": "digital_in_5",
+          "name": "airQuality",
+          "type": "Text",
+          "expression" : "digital_in_5 == 0 ? \"Good\" : digital_in_5 == 1 ? \"Low\" : digital_in_5 == 2 ? \"Med\" : \"High\" "
+        },
+        {
+          "object_id": "digital_in_6",
+          "name": "sound",
+          "type": "Number"
+        },
+        {
+          "object_id": "digital_in_7",
+          "name": "UVvalue",
+          "type": "Number"
+        }
+      ],
+      "internal_attributes": {
+        "lorawan": {
+          "application_server": {
+            "host": "eu1.cloud.thethings.network",
+            "username": "oc-diorama-002@ttn",
+            "password": "",
+            "provider": "TTN"
+            },
+            "app_eui": "8CF95720000569A6",
+            "application_id": "oc-diorama-002@ttn",
+            "application_key": "F80714239C6BC515D1772ED0C38A55F0",
+            "data_model": "application_server"
+          }
+        }
+      }
+    ]}'
+```
 
 ## Required libraries for seed-martel-001
 
