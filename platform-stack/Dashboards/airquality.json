@@ -226,7 +226,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT timeinstant, sound, uvvalue\nFROM mtopeniot.etairqualityobserved",
+          "rawSql": "SELECT timeinstant, no2, c2h50h, voc, co\nFROM mtopeniot.etairqualityobserved",
           "refId": "A",
           "select": [
             [
@@ -248,7 +248,7 @@
           ]
         }
       ],
-      "title": "Sound and UV Level",
+      "title": "Polluttants",
       "type": "timeseries"
     }
   ],
@@ -267,6 +267,6 @@
   "timezone": "",
   "title": "AirQuality",
   "uid": "AirQuality",
-  "version": 2,
+  "version": 4,
   "weekStart": ""
 }
