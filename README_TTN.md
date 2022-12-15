@@ -265,12 +265,11 @@ subscribe to the applications on the TTN platform.
 The code below is the comand, already configured, that we use in order to connect.
 
 ```bash
-curl -iX POST \
-    'http://localhost:1026/v2/subscriptions/' \
-    -H 'Content-Type: application/json' \
-    -H 'fiware-service: openiot' \
-    -H 'fiware-servicepath: /' \
-    -d '{
+curl -iX POST \ 'http://localhost:1026/v2/subscriptions/' \
+-H 'Content-Type: application/json' \
+-H 'fiware-service: openiot' \
+-H 'fiware-servicepath: /' \
+-d '{
     "description": "Notify QuantumLeap of count changes of any WasteContainer Sensor",
     "subject": {
       "entities": [
@@ -289,12 +288,11 @@ curl -iX POST \
     "throttling": 1
   }'
 
-  curl -iX POST \
-    'http://localhost:1026/v2/subscriptions/' \
-    -H 'Content-Type: application/json' \
-    -H 'fiware-service: openiot' \
-    -H 'fiware-servicepath: /' \
-    -d '{
+curl -iX POST \ 'http://localhost:1026/v2/subscriptions/' \
+-H 'Content-Type: application/json' \
+-H 'fiware-service: openiot' \
+-H 'fiware-servicepath: /' \
+-d '{
     "description": "Notify QuantumLeap of count changes of any AirQualityObserved Sensor",
     "subject": {
       "entities": [
