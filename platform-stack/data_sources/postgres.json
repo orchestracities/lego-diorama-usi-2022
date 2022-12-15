@@ -1,0 +1,25 @@
+{
+    "id": 1,
+    "uid": "VjVFNt54k",
+    "orgId": 1,
+    "name": "PostgreSQL",
+    "type": "postgres",
+    "typeName": "PostgreSQL",
+    "typeLogoUrl": "public/app/plugins/datasource/postgres/img/postgresql_logo.svg",
+    "access": "proxy",
+    "url": "timescale-db:5432",
+    "user": "postgres",
+    "database": "quantumleap",
+    "basicAuth": false,
+    "isDefault": true,
+    "jsonData": {
+        "postgresVersion": 1100,
+        "sslmode": "disable",
+        "timescaledb": true,
+        "tlsAuth": false,
+        "tlsAuthWithCACert": false,
+        "tlsConfigurationMethod": "file-path",
+        "tlsSkipVerify": true
+    },
+    "readOnly": false
+}
