@@ -27,5 +27,6 @@
 ### Documentation
 
 - GrovePI + Docker setup
+- Update KubeEdge setup documentation (v 1.11)
 
 ### Technical debt
