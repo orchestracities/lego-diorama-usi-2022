@@ -31,6 +31,10 @@ The TTN Gateway is now ready to use.
 
 ## Seeeduino LoRaWAN Configuration
 
+Every seeduino is connected to a ```Grove - Base Shield```, an expansion module.
+
+The Grove sensors are connected to the shield.
+
 ### Device Info (seed-martel-001)
 
 ```bash
@@ -41,6 +45,14 @@ AppKey: 51F58CAC3F5735E3D1F88DD3EADBE9C6
 Application: oc-diorama-001
 ```
 
+
+| Sensor |Port |
+| ------------- | ------------- |
+| Accelerometer   | I2C  |
+| Flame Sensor  | D2 |
+| Ultrasonic Ranger   | D3  |
+| Temperature and Humidity sensor  | D5  |
+
 ### Device Info (seed-martel-002)
 
 ```bash
@@ -50,6 +62,13 @@ AppKey: F80714239C6BC515D1772ED0C38A55F0
 
 Application: oc-diorama-002
 ```
+
+| Sensor |Port |
+| ------------- | ------------- |
+| Multichannel Gas Sensor   | I2C  |
+| Air Quality Sensor  | A0  |
+| Sound Sensor  | A1  |
+| UV_Sensor  | A2  |
 
 ## Connection between Seeeduino LoRaWAN and TTN
 
@@ -236,6 +255,61 @@ curl --location --request POST 'localhost:4042/iot/services' \
         }
       }
     ]}'
+```
+
+## Receive data from TTN into Orion-Quantumleap-DB
+
+In order to receive data from TTN the Orion-Quantumleap-DB should
+subscribe to the applications on the TTN platform.
+
+The code below is the comand, already configured, that we use in order to connect.
+
+```bash
+curl -iX POST \ 'http://localhost:1026/v2/subscriptions/' \
+-H 'Content-Type: application/json' \
+-H 'fiware-service: openiot' \
+-H 'fiware-servicepath: /' \
+-d '{
+    "description": "Notify QuantumLeap of count changes of any WasteContainer Sensor",
+    "subject": {
+      "entities": [
+        {
+          "idPattern": ".*",
+          "type": "WasteContainer"
+        }
+      ]
+    },
+    "notification": {
+      "http": {
+        "url": "http://quantumleap:8668/v2/notify"
+      },
+      "metadata": ["dateCreated", "dateModified"]
+    },
+    "throttling": 1
+  }'
+
+curl -iX POST \ 'http://localhost:1026/v2/subscriptions/' \
+-H 'Content-Type: application/json' \
+-H 'fiware-service: openiot' \
+-H 'fiware-servicepath: /' \
+-d '{
+    "description": "Notify QuantumLeap of count changes of any AirQualityObserved Sensor",
+    "subject": {
+      "entities": [
+        {
+          "idPattern": ".*",
+          "type": "AirQualityObserved"
+        }
+      ]
+    },
+    "notification": {
+      "http": {
+        "url": "http://quantumleap:8668/v2/notify"
+      },
+      "metadata": ["dateCreated", "dateModified"]
+    },
+    "throttling": 1
+  }'
 ```
 
 ## Required libraries for seed-martel-001

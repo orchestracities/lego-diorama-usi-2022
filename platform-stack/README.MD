@@ -245,3 +245,16 @@ need to register the single device (but you can to force the name)
 - https://fiware-iotagent-json.readthedocs.io/en/latest/
 - https://fiware-lorawan.readthedocs.io/en/latest/
 - https://quantumleap.readthedocs.io/en/latest/
+
+## Final setup
+
+Run this commands to setup the environment:
+```
+./services start
+
+./register_mqtt_sensor.sh
+
+./setup-graphana.sh
+```
+
+>NOTE: Was not possible to auto-import the dashboards due to an export error. You need to manually import the ```.json``` file in the platform-stack/dashboard folder once in the Grafana GUI.

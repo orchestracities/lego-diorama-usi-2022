@@ -110,7 +110,7 @@ loraAgentSubscription() {
 	        {
 		    "device_id": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
      		    "entity_name": "urn:ngsi-ld:WasteContainer:martel-ttn-001",
-	            "entity_type": "wastecontainer",
+	            "entity_type": "WasteContainer",
 	            "apikey": "",
 	            "resource": "8CF957200005727C",
 		    "expressionLanguage": "jexl",
@@ -164,7 +164,7 @@ loraAgentSubscription() {
             {
 		    "device_id": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
       		    "entity_name": "urn:ngsi-ld:AirQualityObserved:martel-ttn-002",
-	            "entity_type": "environment",
+	            "entity_type": "AirQualityObserved",
 	            "apikey": "",
 	            "resource": "8CF95720000569A6",
 		    "expressionLanguage": "jexl",
@@ -225,6 +225,56 @@ loraAgentSubscription() {
 	}'
 }
 
+iotLoraAgentToQL(){
+   curl -iX POST \
+    'http://localhost:1026/v2/subscriptions/' \
+    -H 'Content-Type: application/json' \
+    -H 'fiware-service: openiot' \
+    -H 'fiware-servicepath: /' \
+    -d '{
+    "description": "Notify QuantumLeap of count changes of any WasteContainer Sensor",
+    "subject": {
+      "entities": [
+        {
+          "idPattern": ".*",
+          "type": "WasteContainer"
+        }
+      ]
+    },
+    "notification": {
+      "http": {
+        "url": "http://quantumleap:8668/v2/notify"
+      },
+      "metadata": ["dateCreated", "dateModified"]
+    },
+    "throttling": 1
+  }'
+
+  curl -iX POST \
+    'http://localhost:1026/v2/subscriptions/' \
+    -H 'Content-Type: application/json' \
+    -H 'fiware-service: openiot' \
+    -H 'fiware-servicepath: /' \
+    -d '{
+    "description": "Notify QuantumLeap of count changes of any AirQualityObserved Sensor",
+    "subject": {
+      "entities": [
+        {
+          "idPattern": ".*",
+          "type": "AirQualityObserved"
+        }
+      ]
+    },
+    "notification": {
+      "http": {
+        "url": "http://quantumleap:8668/v2/notify"
+      },
+      "metadata": ["dateCreated", "dateModified"]
+    },
+    "throttling": 1
+  }'
+}
+
 command="$1"
 case "${command}" in
 	"help")
@@ -246,6 +296,7 @@ case "${command}" in
 		waitForOrion
 		displayServices
 		loraAgentSubscription
+		iotLoraAgentToQL
 		;;
 	"stop")
 		export $(cat .env | grep "#" -v)

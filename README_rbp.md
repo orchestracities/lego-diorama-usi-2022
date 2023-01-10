@@ -291,3 +291,140 @@ Required operating system for GrovePi compatibility:
     ```
 
     and go back to step 3.
+
+## Sensor  Grove-Shield Connections
+
+### Traffic Scenario Raspberry
+
+1. Street Lights:
+    - The lights of street 1 can be connected to the ports D2 and D3
+    - The lights of street 2 can be connected to the ports D4 and D5
+1. Traffic Sensors:
+    - Connect the
+    [VCNL 4010 sensor](https://ch.farnell.com/en-CH/seeed-studio/101020042/proximity-sensor-arduino-raspberry/dp/4007675)
+    to port D6
+    - Connect the
+    [obstacle sensor to port D8](https://ch.farnell.com/seeed-studio/101020174/sensorplatine-arduino-raspberry/dp/4007697?gclid=Cj0KCQjwsrWZBhC4ARIsAGGUJurM9aEQcDj09roHYeRZ_3_gmDXY0Xlc15PAJFXd-QtcVSGthIXybNQaAl72EALw_wcB&mckv=_dc%7Cpcrid%7C%7Cplid%7C%7Ckword%7C%7Cmatch%7C%7Cslid%7C%7Cproduct%7C4007697%7Cpgrid%7C%7Cptaid%7C&CMP=KNC-GCH-GEN-SHOPPING-PMAX-Test897-High_ROAS&gross_price=true)
+    > *NOTE*: the VCNL 4010 sensor in the code
+is assigned to the port D7, this is not an error,
+in order to workproprely this sensor must be connected to the port
+prior to the one assigned in the code.
+
+> *NOTE*: To Change the pins you can modify the  ```config.ini```  file in ```lego-diorama-usi-2022/diorama/src/traffic```
+
+### Parking Scenario Raspberry
+
+1. Parking Spot:
+    - Connect the [proximity sensor (HC-SR-04)](https://ch.farnell.com/seeed-studio/101020010/sensormodul-ultraschall-entf-messung/dp/3932130?gclid=Cj0KCQjwsrWZBhC4ARIsAGGUJuoTBlA74GW-XcRZuvatl5k2eW5ZPblSF02TSqZKIuCgBwr3T6X3o4UaAjldEALw_wcB&mckv=_dc%7Cpcrid%7C%7Cplid%7C%7Ckword%7C%7Cmatch%7C%7Cslid%7C%7Cproduct%7C3932130%7Cpgrid%7C%7Cptaid%7C&CMP=KNC-GCH-GEN-SHOPPING-PMAX-Test897-High_ROAS&gross_price=true) to port D2
+    - Connect the red led to port D3
+    - Connect the green led to port D4
+    > *NOTE*:  To Change the pins you can modify the  ```config.ini```  file in ```lego-diorama-usi-2022/diorama/src/parking```
+
+2. Ev Charging Station:
+    - Connect the [proximity sensor (HC-SR-04)](https://ch.farnell.com/seeed-studio/101020010/sensormodul-ultraschall-entf-messung/dp/3932130gclid=Cj0KCQjwsrWZBhC4ARIsAGGUJuoTBlA74GW-XcRZuvatl5k2eW5ZPblSF02TSqZKIuCgBwr3T6X3o4UaAjldEALw_wcB&mckv=_dc%7Cpcrid%7C%7Cplid%7C%7Ckword%7C%7Cmatch%7C%7Cslid%7C%7Cproduct%7C3932130%7Cpgrid%7C%7Cptaid%7C&CMP=KNC-GCH-GEN-SHOPPING-PMAX-Test897-High_ROAS&gross_price=true) to port D7
+    - Connect the red led to port D5
+    - Connect the green led to port D6
+    - Connect the button to port D8
+
+    > *NOTE*:  To Change the pins you can modify the  ```config.ini```  file in ```lego-diorama-usi-2022/diorama/src/ev-charging```
+
+## Scenario MQTT Connection SetUp
+
+The MQTT Connection must configured for each scenario, the files are located here:
+
+```bash
+    lego-diorama-usi-2022/diorama/src/traffic/config.ini
+    lego-diorama-usi-2022/diorama/src/parking/config.ini
+    lego-diorama-usi-2022/diorama/src/ev-charging/config.ini
+```
+
+The following default configuration is
+already provided in each config.ini:
+
+```bash
+    [connection]
+    broker_address = test.mosquitto.org
+    port= 1883
+    username= 
+    password= 
+    protocol= json
+```
+
+This configuration doesn't use authentication
+and it connects to the ```test.mosquitto.org``` broker
+which is a freely available mosquitto broker used for testing.
+To set up the connection simply change the broker addres
+with the ip address of your broker and fill the username
+and password fields if your broker uses authentication.
+
+## Run The Code
+
+### Deploy Mini Stack and Register Sensors On Master Node
+
+Before running the code for the scenarios,
+deploy the ministack and register the scenarios:
+
+```bash
+    $ cd lego-diorama-usi-2022/platform-stack
+    $ docker compose up -d
+    $ ./register_mqtt_sensor.sh
+```
+
+The file ```register_mqtt_sensor.sh```
+ contains some example of the commands to run in
+ the shell to check that commands and data are sent/received
+ and stored in the database
+
+### Required Python Libraries for Raspberry
+
+- paho-mqtt
+- grovepi
+- json
+- time
+- ConfigParser
+
+ (The libraries can be installed with the ```pip install``` command)
+
+### Run Traffic Scenario Raspberry 1
+
+```bash
+    $ cd lego-diorama-usi-2022/diorama/src/traffic
+    $ sudo python street_lights.py
+    $ sudo python traffic_counter.py
+```
+
+### Run Parking Scenario on Raspberry 2
+
+```bash
+    $ cd lego-diorama-usi-2022/diorama/src/parking
+    $ sudo python parking.py
+    $ cd ../ev-charging
+    $ sudo python ev-charging.py
+```
+
+you might want to change the sleep time in the config.ini
+files of the parking and ev charging to send more data
+and speed up the program execution, the defult value
+of the sleep paramter has been set in ordet to avoid
+sending too many request to the public mosquito broker
+> *NOTE*:  Do not use python3 to run the scripts
+because some sensor might not work correctly with the grove library!
+
+### Dashboard Set Up
+
+For the Dashboard set up please
+refer to the ```README.MD``` file
+in the ```platform-stack```  folder
+
+## Alternative OS (in case of problems)
+
+In case of problems of:
+
+- compatibility
+- wierd sensor behaviour
+- code not running properly
+
+Please consider running the code of the
+scenarios direclty on a
+Raspberry Pi running the Raspian For Robots OS.
+[Raspbian For Robots step by step installation guide](https://www.dexterindustries.com/howto/install-raspbian-for-robots-image-on-an-sd-card/)
